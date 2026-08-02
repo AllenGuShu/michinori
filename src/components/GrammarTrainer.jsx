@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, RotateCcw } from "lucide-react";
+import RouteProgress from "./RouteProgress.jsx";
 
 export default function GrammarTrainer({ deck, catLabel }) {
   const [index, setIndex] = useState(0);
