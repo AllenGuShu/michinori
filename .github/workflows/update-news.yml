@@ -1,0 +1,42 @@
+name: 更新旅遊日文新聞
+
+on:
+  schedule:
+    # 每天台灣時間早上 7 點執行（UTC 前一天 23:00）
+    - cron: "0 23 * * *"
+  workflow_dispatch: {} # 允許在 GitHub 網頁上手動點按執行
+
+permissions:
+  contents: write
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取出 repo 原始碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安裝套件
+        run: npm install
+
+      - name: 抓取並分析最新新聞
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run fetch-news
+
+      - name: 若有變動就自動 commit
+        run: |
+          git config user.name "michinori-news-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/news/articles.json
+          if git diff --cached --quiet; then
+            echo "新聞內容沒有變化，不需要 commit"
+          else
+            git commit -m "🤖 自動更新旅遊日文新聞 $(date +'%Y-%m-%d')"
+            git push
+          fi
