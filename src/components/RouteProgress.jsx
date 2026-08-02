@@ -7,7 +7,7 @@ export default function RouteProgress({ current, total }) {
       <div className="route-line" />
       <div className="route-fill" style={{ width: `${pct}%` }} />
       <div className="route-dot" style={{ left: `calc(${pct}% - 6px)` }} />
-      <div className="route-flag">🏁</div>
+      <div className="route-flag">⛩️</div>
     </div>
   );
 }

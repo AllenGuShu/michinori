@@ -70,13 +70,14 @@ export default function App() {
           --ai-deep: #16304f;
           --kaki: #e2703a;
           --wakakusa: #7a9b57;
+          --shu: #c1272d;
           --paper: #f6f3ea;
           --paper-card: #fffdf7;
           --line: #d8d1bf;
           font-family: 'Zen Kaku Gothic New', 'Noto Sans TC', sans-serif;
           background: var(--paper);
-          background-image: radial-gradient(circle at 1px 1px, rgba(36,68,110,0.06) 1px, transparent 0);
-          background-size: 18px 18px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cg fill='none' stroke='%2324446e' stroke-opacity='0.09' stroke-width='1'%3E%3Cpath d='M0 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M0 30a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 30a10 10 0 0 1 20 0'/%3E%3Cpath d='M-30 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M30 30a30 30 0 0 1 60 0'/%3E%3C/g%3E%3C/svg%3E");
+          background-size: 60px 30px;
           color: var(--ink);
           min-height: 100vh;
           padding: calc(20px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
@@ -93,6 +94,17 @@ export default function App() {
         }
         .eyebrow { font-size: 12px; letter-spacing: 0.14em; color: var(--kaki); font-weight: 700; text-transform: uppercase; }
         .title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 700; color: var(--ai-deep); margin: 2px 0 2px; }
+        .title-row { display: flex; align-items: center; gap: 10px; }
+        .hanko-stamp {
+          width: 32px; height: 32px; flex-shrink: 0; position: relative;
+          border: 1.5px solid var(--shu); border-radius: 5px; color: var(--shu);
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px;
+          transform: rotate(-7deg); opacity: 0.88;
+        }
+        .hanko-stamp::after {
+          content: ""; position: absolute; inset: 3px; border: 1px solid var(--shu); border-radius: 3px;
+        }
         .subtitle { font-size: 13px; color: #6b6355; }
 
         .tabs { display: flex; gap: 8px; margin: 18px 0 10px; }
@@ -152,15 +164,16 @@ export default function App() {
           padding: 20px; box-shadow: 0 2px 0 var(--line); overflow-y: auto;
         }
         .flip-front::before, .flip-front::after {
-          content: ""; position: absolute; width: 14px; height: 14px; background: var(--paper);
-          border-radius: 50%; top: 50%; transform: translateY(-50%);
+          content: ""; position: absolute; width: 22px; height: 22px; border-color: var(--shu);
+          opacity: 0.55; top: 16px;
         }
-        .flip-front::before { left: -8px; }
-        .flip-front::after { right: -8px; }
+        .flip-front::before { left: 16px; border-left: 2px solid var(--shu); border-top: 2px solid var(--shu); }
+        .flip-front::after { right: 16px; top: auto; bottom: 16px; border-right: 2px solid var(--shu); border-bottom: 2px solid var(--shu); }
         .flip-back { transform: rotateY(180deg); background: var(--ai-deep); border-color: var(--ai-deep); padding: 22px; }
         .level-tag {
           position: absolute; top: 12px; left: 14px; font-size: 11px; font-weight: 700;
-          color: var(--kaki); border: 1px solid var(--kaki); border-radius: 4px; padding: 1px 6px;
+          color: var(--shu); border: 1px solid var(--shu); border-radius: 3px; padding: 1px 7px;
+          font-family: 'Noto Serif JP', serif; transform: rotate(-3deg);
         }
         .jp-kanji { font-family: 'Noto Serif JP', serif; font-size: 34px; font-weight: 700; color: var(--ai-deep); }
         .jp-kana { font-size: 15px; color: #8a8172; margin-top: 6px; }
@@ -304,7 +317,7 @@ export default function App() {
         .tabs-scroll::-webkit-scrollbar { display: none; }
         .tabs-scroll .tab-btn { flex: 0 0 auto; padding: 10px 14px; position: relative; }
         .due-badge {
-          background: var(--kaki); color: #fff; font-size: 10px; font-weight: 700;
+          background: var(--shu); color: #fff; font-size: 10px; font-weight: 700;
           border-radius: 999px; padding: 1px 6px; margin-left: 2px;
         }
 
@@ -379,7 +392,10 @@ export default function App() {
             <div className="eyebrow">通勤時間 · 學好用的日文</div>
             {streak.count > 0 && <div className="streak-badge">🔥 連續 {streak.count} 天</div>}
           </div>
-          <div className="title">みちのり</div>
+          <div className="title-row">
+            <div className="title">みちのり</div>
+            <span className="hanko-stamp" aria-hidden="true">学</span>
+          </div>
           <div className="subtitle">短短幾分鐘，把通勤路變成累積旅遊日文的路</div>
         </div>
 
