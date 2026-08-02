@@ -79,7 +79,7 @@ export default function App() {
           background-size: 18px 18px;
           color: var(--ink);
           min-height: 100vh;
-          padding: 20px 16px 40px;
+          padding: calc(20px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
           display: flex;
           justify-content: center;
         }
