@@ -10,7 +10,7 @@ export default function NewsSection() {
     return (
       <div>
         <div className="news-banner">
-          📰 目前為示範文章，正式上線後會由後端定期分析最新的簡易日文新聞並自動更新。
+          📰 這裡的新聞是老師精選、再請 Claude 分析單字文法的內容，會不定期更新。
         </div>
         <div className="scenario-list">
           {NEWS_ARTICLES.map((a) => (

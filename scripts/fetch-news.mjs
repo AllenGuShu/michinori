@@ -18,7 +18,12 @@
 import * as cheerio from "cheerio";
 import fs from "node:fs/promises";
 import path from "node:path";
+import dns from "node:dns";
 import { fileURLToPath } from "node:url";
+
+// 修正：Node.js 在部分雲端 CI 環境（例如 GitHub Actions）預設會優先嘗試 IPv6，
+// 若目標主機的 IPv6 連線不通就會整個卡住逾時（ETIMEDOUT）。強制優先用 IPv4 可解決大多數這類問題。
+dns.setDefaultResultOrder("ipv4first");
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = path.join(__dirname, "../src/news/articles.json");
@@ -26,16 +31,45 @@ const OUTPUT_PATH = path.join(__dirname, "../src/news/articles.json");
 const NHK_LIST_URL = "https://www3.nhk.or.jp/news/easy/news-list.json";
 const MAX_ARTICLES = 5;
 const EXCERPT_SENTENCES = 2; // 只取前幾句當摘要，不抓整篇全文
+const FETCH_TIMEOUT_MS = 15000;
+const MAX_RETRIES = 3;
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = "claude-sonnet-4-6"; // 依需求可換成其他可用的 Claude 模型
 
+/* ---------------- 帶逾時＋重試的 fetch，並印出詳細診斷訊息 ---------------- */
+
+async function fetchWithRetry(url, options = {}, label = url) {
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      console.log(`  → 抓取 ${label}（第 ${attempt} 次嘗試）`);
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      lastErr = err;
+      console.warn(`  ⚠️  ${label} 第 ${attempt} 次失敗：${err.message}`);
+      if (attempt < MAX_RETRIES) {
+        await new Promise((r) => setTimeout(r, attempt * 1500)); // 逐次拉長等待時間再重試
+      }
+    }
+  }
+  throw new Error(`${label} 重試 ${MAX_RETRIES} 次後仍失敗：${lastErr?.message}`);
+}
+
+
 /* ---------------- 抓新聞列表 ---------------- */
 
 async function fetchNewsList() {
-  const res = await fetch(NHK_LIST_URL, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; MichinoriBot/1.0)" },
-  });
+  const res = await fetchWithRetry(
+    NHK_LIST_URL,
+    { headers: { "User-Agent": "Mozilla/5.0 (compatible; MichinoriBot/1.0)" } },
+    "news-list.json"
+  );
   if (!res.ok) throw new Error(`news-list.json 取得失敗：HTTP ${res.status}`);
   const raw = await res.json();
 
@@ -81,9 +115,11 @@ function splitSentences(text) {
 
 async function fetchArticleExcerpt(newsId) {
   const url = `https://www3.nhk.or.jp/news/easy/${newsId}/${newsId}.html`;
-  const res = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; MichinoriBot/1.0)" },
-  });
+  const res = await fetchWithRetry(
+    url,
+    { headers: { "User-Agent": "Mozilla/5.0 (compatible; MichinoriBot/1.0)" } },
+    `文章 ${newsId}`
+  );
   if (!res.ok) throw new Error(`文章頁面取得失敗：HTTP ${res.status}（${url}）`);
   const html = await res.text();
   const $ = cheerio.load(html);
@@ -117,19 +153,23 @@ JSON格式：
 日文原文：
 ${excerptPlain}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
+  const res = await fetchWithRetry(
+    "https://api.anthropic.com/v1/messages",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }],
+      }),
     },
-    body: JSON.stringify({
-      model: ANTHROPIC_MODEL,
-      max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
+    "Claude API"
+  );
 
   if (!res.ok) {
     console.error("Claude API 分析失敗：", res.status, await res.text());

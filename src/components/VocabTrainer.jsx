@@ -64,7 +64,7 @@ export default function VocabTrainer({ deck, deckLabel, onSrsMiss, onSrsKnow, is
       <div className="result-card">
         <h3>{isSrsDeck ? "今日複習完成！" : reviewMode ? "複習完成！" : `${deckLabel}完成！`}</h3>
         <div className="result-stats">
-          <div><span className="num">{known.length}</span><span className="lbl">記得</span></div>
+          <div><span className="num">{known.length}</span><span className="lbl">學會</span></div>
           <div><span className="num">{missed.length}</span><span className="lbl">待複習</span></div>
         </div>
         <div className="result-actions">
@@ -124,7 +124,7 @@ export default function VocabTrainer({ deck, deckLabel, onSrsMiss, onSrsKnow, is
           <X size={16} /> 不熟
         </button>
         <button className="btn btn-know" onClick={markKnown}>
-          <Check size={16} /> 記得了
+          <Check size={16} /> 學會了
         </button>
       </div>
     </div>

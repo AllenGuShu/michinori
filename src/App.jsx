@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { BookOpen, PenLine, RotateCcw } from "lucide-react";
 import { CORE_VOCAB, TRAVEL_VOCAB, THEMES, ALL_VOCAB } from "./data/vocab.js";
-import { GRAMMAR } from "./data/grammar.js";
+import GrammarReference from "./components/GrammarReference.jsx";
 import VocabTrainer from "./components/VocabTrainer.jsx";
-import GrammarTrainer from "./components/GrammarTrainer.jsx";
 import DialogueTrainer from "./components/DialogueTrainer.jsx";
 import NewsSection from "./components/NewsSection.jsx";
 import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
+import { markLearned, unmarkLearned } from "./lib/learned.js";
+import LearnedSection from "./components/LearnedSection.jsx";
 
 export default function App() {
   const [mode, setMode] = useState("vocab");
@@ -20,6 +21,7 @@ export default function App() {
       saveQueue(next);
       return next;
     });
+    unmarkLearned("vocab", cardId);
   }, []);
 
   const handleSrsKnow = useCallback((cardId) => {
@@ -28,6 +30,7 @@ export default function App() {
       saveQueue(next);
       return next;
     });
+    markLearned("vocab", cardId);
   }, []);
 
   const dueDeck = useMemo(() => getDueDeck(ALL_VOCAB, reviewQueue), [reviewQueue]);
@@ -45,7 +48,6 @@ export default function App() {
     return sourceVocab.filter((v) => theme === "全部" || v.theme === theme);
   }, [sourceVocab, theme]);
 
-  const grammarDeck = GRAMMAR[cat];
   const deckLabel = theme === "全部" ? catLabel : `${catLabel}・${theme}`;
 
   return (
@@ -184,6 +186,58 @@ export default function App() {
           position: relative; background: var(--paper-card); border: 1.5px solid var(--line);
           border-radius: 16px; padding: 22px 18px 18px; box-shadow: 0 2px 0 var(--line);
         }
+        .grammar-ref-card {
+          position: relative; background: var(--ai-deep); border-radius: 16px;
+          padding: 26px 20px 20px; margin-bottom: 16px; color: #fff;
+        }
+        .grammar-ref-pattern {
+          font-family: 'Noto Serif JP', serif; font-size: 26px; font-weight: 700; margin-top: 10px;
+        }
+        .grammar-ref-meaning { font-size: 15px; color: rgba(255,255,255,0.75); margin-top: 6px; }
+        .example-box-light {
+          margin-top: 18px; padding: 14px; background: rgba(255,255,255,0.08); border-radius: 12px;
+          border-top: none;
+        }
+        .example-jp-dark { font-size: 15.5px; line-height: 2.1; color: #fff; }
+        .example-jp-dark ruby rt { font-size: 10px; color: rgba(255,255,255,0.75); }
+        .example-zh-dark { font-size: 12.5px; color: rgba(255,255,255,0.65); margin-top: 6px; }
+        .grammar-note-light {
+          margin-top: 14px; font-size: 12.5px; color: #e8f0e0; background: rgba(122,155,87,0.28);
+          border-radius: 8px; padding: 10px 12px; line-height: 1.6; text-align: left;
+        }
+        .learned-tag {
+          position: absolute; top: 12px; right: 14px; font-size: 11px; font-weight: 700;
+          color: #d8ecc8; background: rgba(122,155,87,0.35); border-radius: 999px; padding: 2px 10px;
+        }
+        .learn-toggle-btn { width: 100%; margin-top: 10px; }
+        .btn-learned-active { background: var(--wakakusa); color: #fff; }
+
+        .learned-summary { display: flex; gap: 12px; margin-bottom: 16px; }
+        .learned-summary-item {
+          flex: 1; background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 12px;
+          padding: 14px; text-align: center;
+        }
+        .learned-summary-num { display: block; font-size: 26px; font-weight: 700; color: var(--ai); }
+        .learned-summary-lbl { font-size: 11.5px; color: #8a8172; }
+        .learned-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+        .learned-row {
+          position: relative; background: var(--paper-card); border: 1.5px solid var(--line);
+          border-radius: 12px; padding: 12px 40px 12px 14px; cursor: pointer;
+        }
+        .learned-row-main { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+        .learned-row-kanji { font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px; color: var(--ai-deep); }
+        .learned-row-pattern { font-size: 15px; }
+        .learned-row-kana { font-size: 12px; color: #a89f8f; }
+        .learned-row-zh { font-size: 13px; color: #6b6355; }
+        .learned-remove-btn {
+          position: absolute; top: 10px; right: 10px; background: none; border: none; color: #b0472a;
+          cursor: pointer; padding: 4px;
+        }
+        .learned-row-detail {
+          margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line);
+          font-size: 13.5px; line-height: 1.8; color: var(--ink);
+        }
+        .learned-row-detail-zh { font-size: 12px; color: #8a8172; margin-top: 2px; }
         .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
@@ -305,9 +359,12 @@ export default function App() {
           <button className={`tab-btn ${mode === "news" ? "active" : ""}`} onClick={() => setMode("news")}>
             📰 新聞
           </button>
+          <button className={`tab-btn ${mode === "learned" ? "active" : ""}`} onClick={() => setMode("learned")}>
+            ✅ 已學習
+          </button>
         </div>
 
-        {(mode === "vocab" || mode === "grammar") && (
+        {mode === "vocab" && (
           <div className="cat-switch">
             <button className={`cat-btn ${cat === "core" ? "active" : ""}`} onClick={() => handleCatChange("core")}>生活日文基礎</button>
             <button className={`cat-btn ${cat === "travel" ? "active" : ""}`} onClick={() => handleCatChange("travel")}>旅遊日文</button>
@@ -346,11 +403,13 @@ export default function App() {
           />
         )}
 
-        {mode === "grammar" && <GrammarTrainer deck={grammarDeck} catLabel={catLabel} />}
+        {mode === "grammar" && <GrammarReference />}
 
         {mode === "dialogue" && <DialogueTrainer />}
 
         {mode === "news" && <NewsSection />}
+
+        {mode === "learned" && <LearnedSection key={mode} />}
       </div>
     </div>
   );
