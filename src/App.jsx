@@ -1,12 +1,15 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { BookOpen, PenLine, RotateCcw } from "lucide-react";
 import { CORE_VOCAB, TRAVEL_VOCAB, THEMES, ALL_VOCAB } from "./data/vocab.js";
 import GrammarReference from "./components/GrammarReference.jsx";
 import VocabTrainer from "./components/VocabTrainer.jsx";
 import DialogueTrainer from "./components/DialogueTrainer.jsx";
 import NewsSection from "./components/NewsSection.jsx";
+import ListeningTrainer from "./components/ListeningTrainer.jsx";
+import SpeakingTrainer from "./components/SpeakingTrainer.jsx";
 import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
 import { markLearned, unmarkLearned } from "./lib/learned.js";
+import { recordActivity, getStreak } from "./lib/streak.js";
 import LearnedSection from "./components/LearnedSection.jsx";
 
 export default function App() {
@@ -14,6 +17,11 @@ export default function App() {
   const [cat, setCat] = useState("core");
   const [theme, setTheme] = useState("全部");
   const [reviewQueue, setReviewQueue] = useState(() => loadQueue());
+  const [streak, setStreak] = useState(() => getStreak());
+
+  useEffect(() => {
+    setStreak(recordActivity());
+  }, []);
 
   const handleSrsMiss = useCallback((cardId) => {
     setReviewQueue((prev) => {
@@ -78,6 +86,11 @@ export default function App() {
         .shell { width: 100%; max-width: 440px; }
 
         .header { margin-bottom: 18px; }
+        .header-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .streak-badge {
+          font-size: 11.5px; font-weight: 700; color: var(--kaki); background: rgba(226,112,58,0.1);
+          border: 1px solid rgba(226,112,58,0.3); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+        }
         .eyebrow { font-size: 12px; letter-spacing: 0.14em; color: var(--kaki); font-weight: 700; text-transform: uppercase; }
         .title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 700; color: var(--ai-deep); margin: 2px 0 2px; }
         .subtitle { font-size: 13px; color: #6b6355; }
@@ -238,6 +251,31 @@ export default function App() {
           font-size: 13.5px; line-height: 1.8; color: var(--ink);
         }
         .learned-row-detail-zh { font-size: 12px; color: #8a8172; margin-top: 2px; }
+
+        .listening-card {
+          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px;
+          padding: 32px 20px; text-align: center; margin-bottom: 16px;
+        }
+        .listen-play-btn {
+          width: 72px; height: 72px; border-radius: 50%; border: none; background: var(--ai);
+          color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .listening-hint { margin-top: 14px; font-size: 13px; color: #8a8172; }
+        .listening-transcript {
+          margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line);
+          font-size: 16px; line-height: 2; color: var(--ai-deep);
+        }
+        .listening-transcript ruby rt { font-size: 10px; color: #a89f8f; }
+
+        .speaking-result {
+          margin-top: 14px; background: var(--paper-card); border: 1.5px solid var(--line);
+          border-radius: 14px; padding: 16px;
+        }
+        .speaking-result-row { font-size: 15px; margin-bottom: 10px; }
+        .speaking-result-label { font-weight: 700; color: var(--ai-deep); margin-right: 6px; }
+        .speaking-score-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+        .speaking-score-fill { height: 100%; background: var(--wakakusa); transition: width .3s ease; }
+        .speaking-score-label { font-size: 12.5px; color: #6b6355; margin-top: 6px; }
         .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
@@ -337,7 +375,10 @@ export default function App() {
 
       <div className="shell">
         <div className="header">
-          <div className="eyebrow">通勤時間 · 學好用的日文</div>
+          <div className="header-top-row">
+            <div className="eyebrow">通勤時間 · 學好用的日文</div>
+            {streak.count > 0 && <div className="streak-badge">🔥 連續 {streak.count} 天</div>}
+          </div>
           <div className="title">みちのり</div>
           <div className="subtitle">短短幾分鐘，把通勤路變成累積旅遊日文的路</div>
         </div>
@@ -355,6 +396,12 @@ export default function App() {
           </button>
           <button className={`tab-btn ${mode === "dialogue" ? "active" : ""}`} onClick={() => setMode("dialogue")}>
             💬 會話
+          </button>
+          <button className={`tab-btn ${mode === "listening" ? "active" : ""}`} onClick={() => setMode("listening")}>
+            🎧 聽力
+          </button>
+          <button className={`tab-btn ${mode === "speaking" ? "active" : ""}`} onClick={() => setMode("speaking")}>
+            🎤 口說
           </button>
           <button className={`tab-btn ${mode === "news" ? "active" : ""}`} onClick={() => setMode("news")}>
             📰 新聞
@@ -406,6 +453,10 @@ export default function App() {
         {mode === "grammar" && <GrammarReference />}
 
         {mode === "dialogue" && <DialogueTrainer />}
+
+        {mode === "listening" && <ListeningTrainer key={mode} />}
+
+        {mode === "speaking" && <SpeakingTrainer key={mode} />}
 
         {mode === "news" && <NewsSection />}
 
