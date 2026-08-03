@@ -7,6 +7,7 @@ import DialogueTrainer from "./components/DialogueTrainer.jsx";
 import NewsSection from "./components/NewsSection.jsx";
 import ListeningTrainer from "./components/ListeningTrainer.jsx";
 import SpeakingTrainer from "./components/SpeakingTrainer.jsx";
+import N5Notes from "./components/N5Notes.jsx";
 import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
 import { markLearned, unmarkLearned } from "./lib/learned.js";
 import { recordActivity, getStreak } from "./lib/streak.js";
@@ -289,6 +290,38 @@ export default function App() {
         .speaking-score-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
         .speaking-score-fill { height: 100%; background: var(--wakakusa); transition: width .3s ease; }
         .speaking-score-label { font-size: 12.5px; color: #6b6355; margin-top: 6px; }
+
+        .n5-intro {
+          font-size: 12px; color: var(--ai-deep); background: rgba(36,68,110,0.08);
+          border: 1px solid rgba(36,68,110,0.18); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.6;
+        }
+        .n5-lesson-list { display: flex; flex-direction: column; gap: 10px; }
+        .n5-lesson-card { background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; }
+        .n5-lesson-header {
+          width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px; background: none; border: none;
+          cursor: pointer; text-align: left; color: var(--ink);
+        }
+        .n5-lesson-badge {
+          font-size: 11px; font-weight: 700; color: #fff; background: var(--ai); border-radius: 999px;
+          padding: 3px 10px; flex-shrink: 0;
+        }
+        .n5-lesson-title { flex: 1; font-weight: 700; font-size: 14.5px; color: var(--ai-deep); }
+        .n5-lesson-body { padding: 0 16px 18px; border-top: 1px dashed var(--line); }
+        .n5-section-title { font-weight: 700; font-size: 13px; color: var(--ai-deep); margin: 16px 0 8px; }
+        .n5-grammar-chip { display: inline-block; margin-bottom: 4px; }
+        .n5-sentence-list { display: flex; flex-direction: column; gap: 12px; }
+        .n5-sentence-item { background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+        .n5-sentence-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .n5-sentence-jp { font-size: 15.5px; line-height: 1.9; color: var(--ai-deep); }
+        .n5-sentence-jp ruby rt { font-size: 9.5px; color: #8a8172; }
+        .n5-speak-btn {
+          flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+          background: var(--paper-card); color: var(--ai); display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .n5-sentence-zh { font-size: 12.5px; color: #6b6355; margin-top: 4px; }
+        .n5-sentence-note { margin-top: 8px; }
+        .n5-tip-item { background: rgba(226,112,58,0.08); }
+        .n5-tip-title { font-weight: 700; font-size: 12.5px; color: var(--ai-deep); margin-bottom: 4px; }
         .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
@@ -419,6 +452,9 @@ export default function App() {
           <button className={`tab-btn ${mode === "speaking" ? "active" : ""}`} onClick={() => setMode("speaking")}>
             🎤 口說
           </button>
+          <button className={`tab-btn ${mode === "n5notes" ? "active" : ""}`} onClick={() => setMode("n5notes")}>
+            📔 N5筆記
+          </button>
           <button className={`tab-btn ${mode === "news" ? "active" : ""}`} onClick={() => setMode("news")}>
             📰 新聞
           </button>
@@ -473,6 +509,8 @@ export default function App() {
         {mode === "listening" && <ListeningTrainer key={mode} />}
 
         {mode === "speaking" && <SpeakingTrainer key={mode} />}
+
+        {mode === "n5notes" && <N5Notes key={mode} />}
 
         {mode === "news" && <NewsSection />}
 
