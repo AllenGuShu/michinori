@@ -83,6 +83,7 @@ export default function App() {
           --ink: #21262b;
           --ai: #24446e;
           --ai-deep: #16304f;
+          --heading: #16304f;
           --kaki: #e2703a;
           --wakakusa: #7a9b57;
           --shu: #c1272d;
@@ -109,7 +110,8 @@ export default function App() {
         .app-root.dark {
           --ink: #e5e1d5;
           --ai: #7ea2d6;
-          --ai-deep: #0d1a2b;
+          --ai-deep: #14213a;
+          --heading: #9dc0ee;
           --kaki: #f0925f;
           --wakakusa: #9bc178;
           --shu: #ef6a66;
@@ -121,13 +123,6 @@ export default function App() {
           --muted-3: #746e60;
           --note-text: #cfe0bb;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cg fill='none' stroke='%237ea2d6' stroke-opacity='0.12' stroke-width='1'%3E%3Cpath d='M0 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M0 30a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 30a10 10 0 0 1 20 0'/%3E%3Cpath d='M-30 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M30 30a30 30 0 0 1 60 0'/%3E%3C/g%3E%3C/svg%3E");
-        }
-        .app-root.dark .flip-back,
-        .app-root.dark .grammar-ref-card,
-        .app-root.dark .example-jp-dark,
-        .app-root.dark .cloze-result-correct,
-        .app-root.dark .cloze-result-wrong {
-          background: #14213a;
         }
         .dark-toggle-btn {
           width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
@@ -143,7 +138,7 @@ export default function App() {
           border: 1px solid rgba(226,112,58,0.3); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
         }
         .eyebrow { font-size: 12px; letter-spacing: 0.14em; color: var(--kaki); font-weight: 700; text-transform: uppercase; }
-        .title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 700; color: var(--ai-deep); margin: 2px 0 2px; }
+        .title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 700; color: var(--heading); margin: 2px 0 2px; }
         .title-row { display: flex; align-items: center; gap: 10px; }
         .hanko-stamp {
           width: 32px; height: 32px; flex-shrink: 0; position: relative;
@@ -200,7 +195,7 @@ export default function App() {
         .route-flag { position: absolute; right: -2px; top: -3px; font-size: 14px; }
 
         .deck-meta { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; font-weight: 600; }
-        .pattern-chip { background: rgba(36,68,110,0.08); color: var(--ai-deep); padding: 1px 8px; border-radius: 999px; font-weight: 700; }
+        .pattern-chip { background: rgba(36,68,110,0.08); color: var(--heading); padding: 1px 8px; border-radius: 999px; font-weight: 700; }
 
         .flip-card { perspective: 1200px; height: 340px; cursor: pointer; margin-bottom: 16px; }
         .flip-card-inner {
@@ -226,7 +221,7 @@ export default function App() {
           color: var(--shu); border: 1px solid var(--shu); border-radius: 3px; padding: 1px 7px;
           font-family: 'Noto Serif JP', serif; transform: rotate(-3deg);
         }
-        .jp-kanji { font-family: 'Noto Serif JP', serif; font-size: 34px; font-weight: 700; color: var(--ai-deep); }
+        .jp-kanji { font-family: 'Noto Serif JP', serif; font-size: 34px; font-weight: 700; color: var(--heading); }
         .jp-kana { font-size: 15px; color: var(--muted-2); margin-top: 6px; }
         .tap-hint { position: absolute; bottom: 12px; font-size: 11px; color: var(--muted-3); }
         .zh-meaning { font-size: 21px; font-weight: 700; color: #fff; flex-shrink: 0; }
@@ -302,7 +297,7 @@ export default function App() {
           border-radius: 12px; padding: 12px 40px 12px 14px; cursor: pointer;
         }
         .learned-row-main { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-        .learned-row-kanji { font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px; color: var(--ai-deep); }
+        .learned-row-kanji { font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px; color: var(--heading); }
         .learned-row-pattern { font-size: 15px; }
         .learned-row-kana { font-size: 12px; color: var(--muted-3); }
         .learned-row-zh { font-size: 13px; color: var(--muted-1); }
@@ -327,7 +322,7 @@ export default function App() {
         .listening-hint { margin-top: 14px; font-size: 13px; color: var(--muted-2); }
         .listening-transcript {
           margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line);
-          font-size: 16px; line-height: 2; color: var(--ai-deep);
+          font-size: 16px; line-height: 2; color: var(--heading);
         }
         .listening-transcript ruby rt { font-size: 10px; color: var(--muted-3); }
 
@@ -336,13 +331,13 @@ export default function App() {
           border-radius: 14px; padding: 16px;
         }
         .speaking-result-row { font-size: 15px; margin-bottom: 10px; }
-        .speaking-result-label { font-weight: 700; color: var(--ai-deep); margin-right: 6px; }
+        .speaking-result-label { font-weight: 700; color: var(--heading); margin-right: 6px; }
         .speaking-score-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
         .speaking-score-fill { height: 100%; background: var(--wakakusa); transition: width .3s ease; }
         .speaking-score-label { font-size: 12.5px; color: var(--muted-1); margin-top: 6px; }
 
         .n5-intro {
-          font-size: 12px; color: var(--ai-deep); background: rgba(36,68,110,0.08);
+          font-size: 12px; color: var(--heading); background: rgba(36,68,110,0.08);
           border: 1px solid rgba(36,68,110,0.18); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.6;
         }
         .n5-lesson-list { display: flex; flex-direction: column; gap: 10px; }
@@ -355,14 +350,14 @@ export default function App() {
           font-size: 11px; font-weight: 700; color: #fff; background: var(--ai); border-radius: 999px;
           padding: 3px 10px; flex-shrink: 0;
         }
-        .n5-lesson-title { flex: 1; font-weight: 700; font-size: 14.5px; color: var(--ai-deep); }
+        .n5-lesson-title { flex: 1; font-weight: 700; font-size: 14.5px; color: var(--heading); }
         .n5-lesson-body { padding: 0 16px 18px; border-top: 1px dashed var(--line); }
-        .n5-section-title { font-weight: 700; font-size: 13px; color: var(--ai-deep); margin: 16px 0 8px; }
+        .n5-section-title { font-weight: 700; font-size: 13px; color: var(--heading); margin: 16px 0 8px; }
         .n5-grammar-chip { display: inline-block; margin-bottom: 4px; }
         .n5-sentence-list { display: flex; flex-direction: column; gap: 12px; }
         .n5-sentence-item { background: var(--paper); border-radius: 10px; padding: 12px 14px; }
         .n5-sentence-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-        .n5-sentence-jp { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 2; color: var(--ai-deep); font-weight: 600; }
+        .n5-sentence-jp { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 2; color: var(--heading); font-weight: 600; }
         .n5-sentence-jp ruby rt { font-size: 11px; color: var(--muted-1); }
         .n5-speak-btn {
           flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line);
@@ -374,7 +369,7 @@ export default function App() {
           color: var(--note-text); background: rgba(122,155,87,0.16);
         }
         .n5-tip-item { background: rgba(226,112,58,0.08); }
-        .n5-tip-title { font-weight: 700; font-size: 13.5px; color: var(--ai-deep); margin-bottom: 4px; }
+        .n5-tip-title { font-weight: 700; font-size: 13.5px; color: var(--heading); margin-bottom: 4px; }
         .n5-practice-all-btn { width: 100%; margin-bottom: 14px; }
         .n5-section-title-row { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 8px; }
         .n5-section-title-row .n5-section-title { margin: 0; }
@@ -407,7 +402,7 @@ export default function App() {
           font-size: 10px; font-weight: 700; color: var(--shu); border: 1px solid var(--shu); border-radius: 3px;
           padding: 0px 5px; flex-shrink: 0;
         }
-        .search-result-word { font-family: 'Noto Serif JP', serif; font-weight: 700; color: var(--ai-deep); font-size: 14.5px; }
+        .search-result-word { font-family: 'Noto Serif JP', serif; font-weight: 700; color: var(--heading); font-size: 14.5px; }
         .search-result-reading { font-size: 11px; color: var(--muted-3); }
         .search-result-zh { font-size: 12.5px; color: var(--muted-1); }
 
@@ -416,7 +411,7 @@ export default function App() {
           padding: 20px; margin-bottom: 14px;
         }
         .cloze-hint { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; }
-        .cloze-zh { font-size: 15px; font-weight: 700; color: var(--ai-deep); margin-bottom: 14px; }
+        .cloze-zh { font-size: 15px; font-weight: 700; color: var(--heading); margin-bottom: 14px; }
         .cloze-sentence {
           font-family: 'Noto Serif JP', serif; font-size: 18px; line-height: 2.1; color: var(--ink);
           padding: 12px; background: var(--paper); border-radius: 10px;
@@ -434,14 +429,14 @@ export default function App() {
         }
         .cloze-result-correct { border-color: var(--wakakusa); background: rgba(122,155,87,0.1); }
         .cloze-result-wrong { border-color: var(--shu); background: rgba(193,39,45,0.06); }
-        .cloze-result-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--ai-deep); }
+        .cloze-result-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--heading); }
         .cloze-result-answer { font-size: 14px; margin-bottom: 10px; }
         .cloze-full-sentence {
           display: flex; align-items: center; font-size: 14px; line-height: 1.9; color: var(--ink);
           padding-top: 10px; border-top: 1px dashed var(--line); margin-bottom: 12px;
         }
         .cloze-full-sentence ruby rt { font-size: 9.5px; color: var(--muted-2); }
-        .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
+        .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--heading); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
           text-align: left; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line);
@@ -457,7 +452,7 @@ export default function App() {
         .next-btn { width: 100%; }
 
         .result-card { text-align: center; background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px; padding: 28px 20px; }
-        .result-card h3 { font-family: 'Noto Serif JP', serif; color: var(--ai-deep); margin-bottom: 16px; }
+        .result-card h3 { font-family: 'Noto Serif JP', serif; color: var(--heading); margin-bottom: 16px; }
         .result-stats { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; }
         .result-stats .num { display: block; font-size: 28px; font-weight: 700; color: var(--ai); }
         .result-stats .lbl { font-size: 12px; color: var(--muted-2); }
@@ -487,7 +482,7 @@ export default function App() {
         .scenario-theme { font-size: 12px; color: var(--muted-2); }
 
         .scenario-header { display: flex; flex-direction: column; margin-bottom: 8px; }
-        .scenario-header-title { font-weight: 700; color: var(--ai-deep); font-size: 15px; margin-bottom: 4px; }
+        .scenario-header-title { font-weight: 700; color: var(--heading); font-size: 15px; margin-bottom: 4px; }
 
         .dialogue-scroll { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; max-height: 320px; overflow-y: auto; }
         .bubble-row { display: flex; }
@@ -505,7 +500,7 @@ export default function App() {
         .prompt-text { font-size: 13px; color: var(--muted-2); font-weight: 600; margin-bottom: 10px; }
 
         .news-banner {
-          font-size: 12px; color: var(--ai-deep); background: rgba(36,68,110,0.08);
+          font-size: 12px; color: var(--heading); background: rgba(36,68,110,0.08);
           border: 1px solid rgba(36,68,110,0.18); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.6;
         }
         .news-card {
@@ -513,15 +508,15 @@ export default function App() {
           border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; cursor: pointer; color: var(--ink);
         }
         .news-date { font-size: 11px; color: var(--muted-3); font-weight: 600; margin-bottom: 4px; }
-        .news-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--ai-deep); line-height: 1.7; }
+        .news-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--heading); line-height: 1.7; }
         .news-title-zh { font-size: 12px; color: var(--muted-2); margin-top: 4px; }
         .news-detail { background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px; padding: 18px; }
-        .news-detail-title { font-family: 'Noto Serif JP', serif; font-size: 19px; color: var(--ai-deep); line-height: 1.8; margin: 6px 0 2px; }
+        .news-detail-title { font-family: 'Noto Serif JP', serif; font-size: 19px; color: var(--heading); line-height: 1.8; margin: 6px 0 2px; }
         .news-detail-title-zh { font-size: 13px; color: var(--muted-2); margin-bottom: 14px; }
         .news-body-line { font-size: 15px; line-height: 2.1; margin-bottom: 6px; }
         .news-body-line ruby rt { font-size: 9.5px; color: var(--muted-2); }
         .news-body-zh { font-size: 12.5px; color: var(--muted-2); margin: 10px 0 18px; padding-top: 10px; border-top: 1px dashed var(--line); line-height: 1.7; }
-        .news-section-title { font-weight: 700; font-size: 13px; color: var(--ai-deep); margin: 14px 0 8px; }
+        .news-section-title { font-weight: 700; font-size: 13px; color: var(--heading); margin: 14px 0 8px; }
         .vocab-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .vocab-chip {
           display: flex; align-items: baseline; gap: 6px; background: rgba(226,112,58,0.1);
