@@ -28,3 +28,19 @@ export function Furigana({ text }) {
 export function stripFurigana(text) {
   return text.replace(/\[[^\]]+\]/g, "");
 }
+
+const KANJI_RE = /[\u4e00-\u9faf々]/;
+
+// 用於單字晶片(chip)顯示：只有含漢字、且讀音跟原文不同時才標注音，
+// 純假名／片假名單字（如 あなた、デザイナー）就不會重複顯示一樣的字。
+export function WordRuby({ word, reading }) {
+  if (!reading || word === reading || !KANJI_RE.test(word)) {
+    return <>{word}</>;
+  }
+  return (
+    <ruby>
+      {word}
+      <rt>{reading}</rt>
+    </ruby>
+  );
+}

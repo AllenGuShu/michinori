@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Furigana } from "../lib/furigana.jsx";
+import { Furigana, WordRuby } from "../lib/furigana.jsx";
 import NEWS_ARTICLES from "../news/articles.json";
 
 export default function NewsSection() {
@@ -44,7 +44,7 @@ export default function NewsSection() {
         <div className="vocab-chip-row">
           {article.vocab.map((v, i) => (
             <span key={i} className="vocab-chip">
-              <ruby>{v.word}<rt>{v.reading}</rt></ruby>
+              <WordRuby word={v.word} reading={v.reading} />
               <span className="vocab-chip-zh">{v.zh}</span>
             </span>
           ))}

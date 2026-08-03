@@ -5,6 +5,11 @@ import { GRAMMAR_LIST } from "../data/grammar.js";
 import { N5_LESSONS } from "../data/n5notes.js";
 import { N4_LESSONS } from "../data/n4notes.js";
 
+const KANJI_RE = /[\u4e00-\u9faf々]/;
+function showReading(word, reading) {
+  return reading && word !== reading && KANJI_RE.test(word);
+}
+
 function flattenNotesVocab(lessons, typeLabel) {
   const out = [];
   lessons.forEach((lesson) => {
@@ -72,7 +77,7 @@ export default function SearchBar() {
               <div key={i} className="search-result-row">
                 <span className="search-result-type">{r.type}</span>
                 <span className="search-result-word">{r.word}</span>
-                {r.reading && <span className="search-result-reading">{r.reading}</span>}
+                {showReading(r.word, r.reading) && <span className="search-result-reading">{r.reading}</span>}
                 <span className="search-result-zh">{r.zh}</span>
               </div>
             ))

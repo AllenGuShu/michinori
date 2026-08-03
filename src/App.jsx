@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { BookOpen, PenLine, RotateCcw } from "lucide-react";
+import { BookOpen, PenLine, RotateCcw, Moon, Sun } from "lucide-react";
 import { CORE_VOCAB, TRAVEL_VOCAB, THEMES, ALL_VOCAB } from "./data/vocab.js";
 import GrammarReference from "./components/GrammarReference.jsx";
 import VocabTrainer from "./components/VocabTrainer.jsx";
@@ -11,6 +11,7 @@ import ClozeTrainer from "./components/ClozeTrainer.jsx";
 import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
 import { markLearned, unmarkLearned } from "./lib/learned.js";
 import { recordActivity, getStreak } from "./lib/streak.js";
+import { loadTheme, saveTheme } from "./lib/theme.js";
 import LearnedSection from "./components/LearnedSection.jsx";
 
 export default function App() {
@@ -27,6 +28,11 @@ export default function App() {
   const [theme, setTheme] = useState("全部");
   const [reviewQueue, setReviewQueue] = useState(() => loadQueue());
   const [streak, setStreak] = useState(() => getStreak());
+  const [darkMode, setDarkMode] = useState(() => loadTheme() === "dark");
+
+  useEffect(() => {
+    saveTheme(darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   useEffect(() => {
     setStreak(recordActivity());
@@ -68,7 +74,7 @@ export default function App() {
   const deckLabel = theme === "全部" ? catLabel : `${catLabel}・${theme}`;
 
   return (
-    <div className="app-root">
+    <div className={`app-root ${darkMode ? "dark" : ""}`}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Serif+JP:wght@500;600;700&display=swap');
 
@@ -83,6 +89,11 @@ export default function App() {
           --paper: #f6f3ea;
           --paper-card: #fffdf7;
           --line: #d8d1bf;
+          --muted-1: #6b6355;
+          --muted-2: #8a8172;
+          --muted-3: #a89f8f;
+          --note-text: #3d4a2f;
+          transition: background-color .2s ease, color .2s ease;
           font-family: 'Zen Kaku Gothic New', 'Noto Sans TC', sans-serif;
           background: var(--paper);
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cg fill='none' stroke='%2324446e' stroke-opacity='0.09' stroke-width='1'%3E%3Cpath d='M0 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M0 30a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 30a10 10 0 0 1 20 0'/%3E%3Cpath d='M-30 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M30 30a30 30 0 0 1 60 0'/%3E%3C/g%3E%3C/svg%3E");
@@ -95,8 +106,38 @@ export default function App() {
         }
         .shell { width: 100%; max-width: 440px; }
 
+        .app-root.dark {
+          --ink: #e5e1d5;
+          --ai: #7ea2d6;
+          --ai-deep: #0d1a2b;
+          --kaki: #f0925f;
+          --wakakusa: #9bc178;
+          --shu: #ef6a66;
+          --paper: #191b20;
+          --paper-card: #24262d;
+          --line: #3a3d45;
+          --muted-1: #b7b0a1;
+          --muted-2: #948c7c;
+          --muted-3: #746e60;
+          --note-text: #cfe0bb;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cg fill='none' stroke='%237ea2d6' stroke-opacity='0.12' stroke-width='1'%3E%3Cpath d='M0 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M0 30a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 30a10 10 0 0 1 20 0'/%3E%3Cpath d='M-30 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M30 30a30 30 0 0 1 60 0'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .app-root.dark .flip-back,
+        .app-root.dark .grammar-ref-card,
+        .app-root.dark .example-jp-dark,
+        .app-root.dark .cloze-result-correct,
+        .app-root.dark .cloze-result-wrong {
+          background: #14213a;
+        }
+        .dark-toggle-btn {
+          width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+          background: var(--paper-card); color: var(--ink); display: flex; align-items: center;
+          justify-content: center; cursor: pointer; flex-shrink: 0;
+        }
+
         .header { margin-bottom: 18px; }
         .header-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .header-top-right { display: flex; align-items: center; gap: 8px; }
         .streak-badge {
           font-size: 11.5px; font-weight: 700; color: var(--kaki); background: rgba(226,112,58,0.1);
           border: 1px solid rgba(226,112,58,0.3); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
@@ -114,7 +155,7 @@ export default function App() {
         .hanko-stamp::after {
           content: ""; position: absolute; inset: 3px; border: 1px solid var(--shu); border-radius: 3px;
         }
-        .subtitle { font-size: 13px; color: #6b6355; }
+        .subtitle { font-size: 13px; color: var(--muted-1); }
 
         .tabs { display: flex; gap: 8px; margin: 0 0 8px; }
         .tabs-rows { margin: 18px 0 10px; display: flex; flex-direction: column; gap: 8px; }
@@ -129,7 +170,7 @@ export default function App() {
         .cat-switch { display: flex; gap: 8px; margin-bottom: 10px; }
         .cat-btn {
           flex: 1; padding: 8px; border-radius: 999px; border: 1.5px solid var(--line);
-          background: transparent; font-size: 13px; font-weight: 600; color: #6b6355;
+          background: transparent; font-size: 13px; font-weight: 600; color: var(--muted-1);
           cursor: pointer; transition: all .15s ease;
         }
         .cat-btn.active { background: var(--kaki); border-color: var(--kaki); color: #fff; }
@@ -141,7 +182,7 @@ export default function App() {
         .theme-row::-webkit-scrollbar { display: none; }
         .theme-chip {
           flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
-          background: var(--paper-card); font-size: 12.5px; font-weight: 600; color: #6b6355; cursor: pointer; white-space: nowrap;
+          background: var(--paper-card); font-size: 12.5px; font-weight: 600; color: var(--muted-1); cursor: pointer; white-space: nowrap;
         }
         .theme-chip.active { background: var(--ai); border-color: var(--ai); color: #fff; }
 
@@ -158,7 +199,7 @@ export default function App() {
         }
         .route-flag { position: absolute; right: -2px; top: -3px; font-size: 14px; }
 
-        .deck-meta { font-size: 12px; color: #8a8172; margin-bottom: 10px; font-weight: 600; }
+        .deck-meta { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; font-weight: 600; }
         .pattern-chip { background: rgba(36,68,110,0.08); color: var(--ai-deep); padding: 1px 8px; border-radius: 999px; font-weight: 700; }
 
         .flip-card { perspective: 1200px; height: 340px; cursor: pointer; margin-bottom: 16px; }
@@ -186,8 +227,8 @@ export default function App() {
           font-family: 'Noto Serif JP', serif; transform: rotate(-3deg);
         }
         .jp-kanji { font-family: 'Noto Serif JP', serif; font-size: 34px; font-weight: 700; color: var(--ai-deep); }
-        .jp-kana { font-size: 15px; color: #8a8172; margin-top: 6px; }
-        .tap-hint { position: absolute; bottom: 12px; font-size: 11px; color: #a89f8f; }
+        .jp-kana { font-size: 15px; color: var(--muted-2); margin-top: 6px; }
+        .tap-hint { position: absolute; bottom: 12px; font-size: 11px; color: var(--muted-3); }
         .zh-meaning { font-size: 21px; font-weight: 700; color: #fff; flex-shrink: 0; }
         .romaji { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; font-style: italic; flex-shrink: 0; }
         .polite-badge {
@@ -254,7 +295,7 @@ export default function App() {
           padding: 14px; text-align: center;
         }
         .learned-summary-num { display: block; font-size: 26px; font-weight: 700; color: var(--ai); }
-        .learned-summary-lbl { font-size: 11.5px; color: #8a8172; }
+        .learned-summary-lbl { font-size: 11.5px; color: var(--muted-2); }
         .learned-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
         .learned-row {
           position: relative; background: var(--paper-card); border: 1.5px solid var(--line);
@@ -263,8 +304,8 @@ export default function App() {
         .learned-row-main { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
         .learned-row-kanji { font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px; color: var(--ai-deep); }
         .learned-row-pattern { font-size: 15px; }
-        .learned-row-kana { font-size: 12px; color: #a89f8f; }
-        .learned-row-zh { font-size: 13px; color: #6b6355; }
+        .learned-row-kana { font-size: 12px; color: var(--muted-3); }
+        .learned-row-zh { font-size: 13px; color: var(--muted-1); }
         .learned-remove-btn {
           position: absolute; top: 10px; right: 10px; background: none; border: none; color: #b0472a;
           cursor: pointer; padding: 4px;
@@ -273,7 +314,7 @@ export default function App() {
           margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line);
           font-size: 13.5px; line-height: 1.8; color: var(--ink);
         }
-        .learned-row-detail-zh { font-size: 12px; color: #8a8172; margin-top: 2px; }
+        .learned-row-detail-zh { font-size: 12px; color: var(--muted-2); margin-top: 2px; }
 
         .listening-card {
           background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px;
@@ -283,12 +324,12 @@ export default function App() {
           width: 72px; height: 72px; border-radius: 50%; border: none; background: var(--ai);
           color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .listening-hint { margin-top: 14px; font-size: 13px; color: #8a8172; }
+        .listening-hint { margin-top: 14px; font-size: 13px; color: var(--muted-2); }
         .listening-transcript {
           margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line);
           font-size: 16px; line-height: 2; color: var(--ai-deep);
         }
-        .listening-transcript ruby rt { font-size: 10px; color: #a89f8f; }
+        .listening-transcript ruby rt { font-size: 10px; color: var(--muted-3); }
 
         .speaking-result {
           margin-top: 14px; background: var(--paper-card); border: 1.5px solid var(--line);
@@ -298,7 +339,7 @@ export default function App() {
         .speaking-result-label { font-weight: 700; color: var(--ai-deep); margin-right: 6px; }
         .speaking-score-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
         .speaking-score-fill { height: 100%; background: var(--wakakusa); transition: width .3s ease; }
-        .speaking-score-label { font-size: 12.5px; color: #6b6355; margin-top: 6px; }
+        .speaking-score-label { font-size: 12.5px; color: var(--muted-1); margin-top: 6px; }
 
         .n5-intro {
           font-size: 12px; color: var(--ai-deep); background: rgba(36,68,110,0.08);
@@ -322,15 +363,15 @@ export default function App() {
         .n5-sentence-item { background: var(--paper); border-radius: 10px; padding: 12px 14px; }
         .n5-sentence-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
         .n5-sentence-jp { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 2; color: var(--ai-deep); font-weight: 600; }
-        .n5-sentence-jp ruby rt { font-size: 11px; color: #6b6355; }
+        .n5-sentence-jp ruby rt { font-size: 11px; color: var(--muted-1); }
         .n5-speak-btn {
           flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line);
           background: var(--paper-card); color: var(--ai); display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .n5-sentence-zh { font-size: 14px; color: #4a4438; margin-top: 6px; }
+        .n5-sentence-zh { font-size: 14px; color: var(--muted-1); margin-top: 6px; }
         .n5-sentence-note {
           margin-top: 8px; font-size: 13.5px; line-height: 1.7;
-          color: #3d4a2f; background: rgba(122,155,87,0.16);
+          color: var(--note-text); background: rgba(122,155,87,0.16);
         }
         .n5-tip-item { background: rgba(226,112,58,0.08); }
         .n5-tip-title { font-weight: 700; font-size: 13.5px; color: var(--ai-deep); margin-bottom: 4px; }
@@ -348,15 +389,15 @@ export default function App() {
           display: flex; align-items: center; gap: 8px; background: var(--paper-card);
           border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px;
         }
-        .search-icon { color: #a89f8f; flex-shrink: 0; }
+        .search-icon { color: var(--muted-3); flex-shrink: 0; }
         .search-input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--ink); font-family: inherit; }
-        .search-clear-btn { border: none; background: none; color: #a89f8f; cursor: pointer; padding: 2px; flex-shrink: 0; }
+        .search-clear-btn { border: none; background: none; color: var(--muted-3); cursor: pointer; padding: 2px; flex-shrink: 0; }
         .search-results {
           position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
           background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 12px;
           max-height: 320px; overflow-y: auto; box-shadow: 0 8px 24px rgba(22,48,79,0.15);
         }
-        .search-empty { padding: 16px; font-size: 13px; color: #a89f8f; text-align: center; }
+        .search-empty { padding: 16px; font-size: 13px; color: var(--muted-3); text-align: center; }
         .search-result-row {
           display: flex; align-items: baseline; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--paper);
           flex-wrap: wrap;
@@ -367,21 +408,21 @@ export default function App() {
           padding: 0px 5px; flex-shrink: 0;
         }
         .search-result-word { font-family: 'Noto Serif JP', serif; font-weight: 700; color: var(--ai-deep); font-size: 14.5px; }
-        .search-result-reading { font-size: 11px; color: #a89f8f; }
-        .search-result-zh { font-size: 12.5px; color: #6b6355; }
+        .search-result-reading { font-size: 11px; color: var(--muted-3); }
+        .search-result-zh { font-size: 12.5px; color: var(--muted-1); }
 
         .cloze-card {
           background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px;
           padding: 20px; margin-bottom: 14px;
         }
-        .cloze-hint { font-size: 12px; color: #8a8172; margin-bottom: 10px; }
+        .cloze-hint { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; }
         .cloze-zh { font-size: 15px; font-weight: 700; color: var(--ai-deep); margin-bottom: 14px; }
         .cloze-sentence {
           font-family: 'Noto Serif JP', serif; font-size: 18px; line-height: 2.1; color: var(--ink);
           padding: 12px; background: var(--paper); border-radius: 10px;
         }
-        .cloze-sentence ruby rt { font-size: 10px; color: #8a8172; }
-        .cloze-answer-hint { margin-top: 10px; font-size: 12px; color: #a89f8f; }
+        .cloze-sentence ruby rt { font-size: 10px; color: var(--muted-2); }
+        .cloze-answer-hint { margin-top: 10px; font-size: 12px; color: var(--muted-3); }
         .cloze-input-row { display: flex; gap: 10px; }
         .cloze-input {
           flex: 1; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line);
@@ -399,7 +440,7 @@ export default function App() {
           display: flex; align-items: center; font-size: 14px; line-height: 1.9; color: var(--ink);
           padding-top: 10px; border-top: 1px dashed var(--line); margin-bottom: 12px;
         }
-        .cloze-full-sentence ruby rt { font-size: 9.5px; color: #8a8172; }
+        .cloze-full-sentence ruby rt { font-size: 9.5px; color: var(--muted-2); }
         .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
@@ -412,17 +453,17 @@ export default function App() {
 
         .explain { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
         .explain-zh { font-weight: 700; margin-bottom: 4px; }
-        .explain-note { font-size: 13px; color: #6b6355; margin-bottom: 14px; }
+        .explain-note { font-size: 13px; color: var(--muted-1); margin-bottom: 14px; }
         .next-btn { width: 100%; }
 
         .result-card { text-align: center; background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px; padding: 28px 20px; }
         .result-card h3 { font-family: 'Noto Serif JP', serif; color: var(--ai-deep); margin-bottom: 16px; }
         .result-stats { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; }
         .result-stats .num { display: block; font-size: 28px; font-weight: 700; color: var(--ai); }
-        .result-stats .lbl { font-size: 12px; color: #8a8172; }
+        .result-stats .lbl { font-size: 12px; color: var(--muted-2); }
         .result-actions { display: flex; flex-direction: column; gap: 10px; }
 
-        .empty-state { text-align: center; padding: 40px 0; color: #8a8172; }
+        .empty-state { text-align: center; padding: 40px 0; color: var(--muted-2); }
 
         .tabs-scroll { overflow-x: auto; flex-wrap: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
         .tabs-scroll::-webkit-scrollbar { display: none; }
@@ -443,7 +484,7 @@ export default function App() {
         .scenario-icon { font-size: 24px; }
         .scenario-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
         .scenario-title { font-weight: 700; font-size: 15px; }
-        .scenario-theme { font-size: 12px; color: #8a8172; }
+        .scenario-theme { font-size: 12px; color: var(--muted-2); }
 
         .scenario-header { display: flex; flex-direction: column; margin-bottom: 8px; }
         .scenario-header-title { font-weight: 700; color: var(--ai-deep); font-size: 15px; margin-bottom: 4px; }
@@ -461,7 +502,7 @@ export default function App() {
         .bubble-zh { font-size: 11.5px; opacity: 0.65; margin-top: 4px; }
         .dialogue-current { margin-top: 4px; }
         .bubble-current { max-width: 100%; margin-bottom: 12px; }
-        .prompt-text { font-size: 13px; color: #8a8172; font-weight: 600; margin-bottom: 10px; }
+        .prompt-text { font-size: 13px; color: var(--muted-2); font-weight: 600; margin-bottom: 10px; }
 
         .news-banner {
           font-size: 12px; color: var(--ai-deep); background: rgba(36,68,110,0.08);
@@ -471,15 +512,15 @@ export default function App() {
           display: block; text-align: left; width: 100%; background: var(--paper-card);
           border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; cursor: pointer; color: var(--ink);
         }
-        .news-date { font-size: 11px; color: #a89f8f; font-weight: 600; margin-bottom: 4px; }
+        .news-date { font-size: 11px; color: var(--muted-3); font-weight: 600; margin-bottom: 4px; }
         .news-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--ai-deep); line-height: 1.7; }
-        .news-title-zh { font-size: 12px; color: #8a8172; margin-top: 4px; }
+        .news-title-zh { font-size: 12px; color: var(--muted-2); margin-top: 4px; }
         .news-detail { background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px; padding: 18px; }
         .news-detail-title { font-family: 'Noto Serif JP', serif; font-size: 19px; color: var(--ai-deep); line-height: 1.8; margin: 6px 0 2px; }
-        .news-detail-title-zh { font-size: 13px; color: #8a8172; margin-bottom: 14px; }
+        .news-detail-title-zh { font-size: 13px; color: var(--muted-2); margin-bottom: 14px; }
         .news-body-line { font-size: 15px; line-height: 2.1; margin-bottom: 6px; }
-        .news-body-line ruby rt { font-size: 9.5px; color: #8a8172; }
-        .news-body-zh { font-size: 12.5px; color: #8a8172; margin: 10px 0 18px; padding-top: 10px; border-top: 1px dashed var(--line); line-height: 1.7; }
+        .news-body-line ruby rt { font-size: 9.5px; color: var(--muted-2); }
+        .news-body-zh { font-size: 12.5px; color: var(--muted-2); margin: 10px 0 18px; padding-top: 10px; border-top: 1px dashed var(--line); line-height: 1.7; }
         .news-section-title { font-weight: 700; font-size: 13px; color: var(--ai-deep); margin: 14px 0 8px; }
         .vocab-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .vocab-chip {
@@ -487,10 +528,10 @@ export default function App() {
           border: 1px solid rgba(226,112,58,0.3); border-radius: 999px; padding: 5px 11px; font-size: 13px;
         }
         .vocab-chip ruby rt { font-size: 9px; }
-        .vocab-chip-zh { font-size: 11px; color: #6b6355; }
+        .vocab-chip-zh { font-size: 11px; color: var(--muted-1); }
         .grammar-list { display: flex; flex-direction: column; gap: 8px; }
         .grammar-list-item { display: flex; flex-direction: column; gap: 4px; background: rgba(122,155,87,0.1); border-radius: 10px; padding: 8px 10px; }
-        .grammar-list-note { font-size: 12.5px; color: #57614a; line-height: 1.5; }
+        .grammar-list-note { font-size: 12.5px; color: var(--note-text); line-height: 1.5; }
 
         @media (prefers-reduced-motion: reduce) {
           .flip-card-inner, .route-fill, .route-dot { transition: none !important; }
@@ -501,7 +542,16 @@ export default function App() {
         <div className="header">
           <div className="header-top-row">
             <div className="eyebrow">通勤時間 · 學好用的日文</div>
-            {streak.count > 0 && <div className="streak-badge">🔥 連續 {streak.count} 天</div>}
+            <div className="header-top-right">
+              {streak.count > 0 && <div className="streak-badge">🔥 連續 {streak.count} 天</div>}
+              <button
+                className="dark-toggle-btn"
+                onClick={() => setDarkMode((d) => !d)}
+                aria-label="切換深色模式"
+              >
+                {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </div>
           </div>
           <div className="title-row">
             <div className="title">みちのり</div>

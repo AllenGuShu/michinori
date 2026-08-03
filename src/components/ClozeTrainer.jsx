@@ -1,13 +1,16 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { ChevronRight, RotateCcw, Volume2 } from "lucide-react";
 import { Furigana } from "../lib/furigana.jsx";
 import { speak } from "../lib/speak.js";
 import { similarity } from "../lib/similarity.js";
 import RouteProgress from "./RouteProgress.jsx";
 import { ALL_VOCAB } from "../data/vocab.js";
+import { N5_LESSONS } from "../data/n5notes.js";
+import { N4_LESSONS } from "../data/n4notes.js";
 
 const ROUND_SIZE = 10;
 const CORRECT_THRESHOLD = 0.75;
+const KANJI_RE = /[\u4e00-\u9faf々]/;
 
 function shuffle(arr) {
   const a = [...arr];
@@ -18,12 +21,49 @@ function shuffle(arr) {
   return a;
 }
 
-// 只挑「例句裡確實逐字出現該單字辭書形」的資料，避免動詞變化型態誤判
-function buildClozePool() {
+// 單字資料庫：只挑「例句裡確實逐字出現該單字辭書形」的資料，避免動詞變化型態誤判
+function poolFromVocab() {
   return ALL_VOCAB.filter((v) => v.ex && v.ex.includes(`${v.kanji}[${v.kana}]`)).map((v) => ({
-    ...v,
+    id: `vocab-${v.id}`,
     blanked: v.ex.replace(`${v.kanji}[${v.kana}]`, "＿＿＿＿"),
+    fullSentence: v.ex,
+    exZh: v.exZh,
+    answerKanji: v.kanji,
+    answerKana: v.kana,
+    meaning: v.zh,
+    source: "單字庫",
   }));
+}
+
+// N5 / N4 筆記：用該課的單字表去比對重點句型裡有沒有逐字出現，找到就挖空那個字
+function poolFromLessons(lessons, sourceLabel) {
+  const out = [];
+  lessons.forEach((lesson) => {
+    (lesson.sentences || []).forEach((s, sIdx) => {
+      const vocabList = lesson.vocab || [];
+      for (const v of vocabList) {
+        const token = KANJI_RE.test(v.word) ? `${v.word}[${v.reading}]` : v.word;
+        if (s.jp.includes(token)) {
+          out.push({
+            id: `${sourceLabel}-${lesson.id}-${sIdx}`,
+            blanked: s.jp.replace(token, "＿＿＿＿"),
+            fullSentence: s.jp,
+            exZh: s.zh,
+            answerKanji: v.word,
+            answerKana: v.reading,
+            meaning: v.zh,
+            source: `${sourceLabel} Lesson ${lesson.number}`,
+          });
+          break; // 一句只挖一個空
+        }
+      }
+    });
+  });
+  return out;
+}
+
+function buildClozePool() {
+  return [...poolFromVocab(), ...poolFromLessons(N5_LESSONS, "N5"), ...poolFromLessons(N4_LESSONS, "N4")];
 }
 
 function buildRound() {
@@ -44,8 +84,8 @@ export default function ClozeTrainer() {
 
   const check = useCallback(() => {
     if (!q || checked) return;
-    const simKanji = similarity(input, q.kanji);
-    const simKana = similarity(input, q.kana);
+    const simKanji = similarity(input, q.answerKanji);
+    const simKana = similarity(input, q.answerKana);
     const ok = Math.max(simKanji, simKana) >= CORRECT_THRESHOLD;
     setLastCorrect(ok);
     if (ok) setCorrectCount((c) => c + 1);
@@ -90,7 +130,7 @@ export default function ClozeTrainer() {
   return (
     <div>
       <RouteProgress current={index} total={total} />
-      <div className="deck-meta">造句練習 · {index + 1} / {total}</div>
+      <div className="deck-meta">造句練習 · {index + 1} / {total} · <span className="pattern-chip">{q.source}</span></div>
 
       <div className="cloze-card">
         <div className="cloze-hint">看中文，把空格處的日文打出來（漢字或假名都可以）</div>
@@ -98,7 +138,7 @@ export default function ClozeTrainer() {
         <div className="cloze-sentence">
           <Furigana text={q.blanked} />
         </div>
-        <div className="cloze-answer-hint">提示：{q.zh}</div>
+        <div className="cloze-answer-hint">提示：{q.meaning}</div>
       </div>
 
       {!checked ? (
@@ -118,11 +158,11 @@ export default function ClozeTrainer() {
         <div className={`cloze-result ${lastCorrect ? "cloze-result-correct" : "cloze-result-wrong"}`}>
           <div className="cloze-result-title">{lastCorrect ? "✓ 答對了！" : "✗ 再加油"}</div>
           <div className="cloze-result-answer">
-            正確答案：<ruby>{q.kanji}<rt>{q.kana}</rt></ruby>
+            正確答案：<ruby>{q.answerKanji}<rt>{q.answerKana}</rt></ruby>
           </div>
           <div className="cloze-full-sentence">
-            <Furigana text={q.ex} />
-            <button className="n5-speak-btn" onClick={() => speak(q.ex)} aria-label="播放發音" style={{ marginLeft: 8 }}>
+            <Furigana text={q.fullSentence} />
+            <button className="n5-speak-btn" onClick={() => speak(q.fullSentence)} aria-label="播放發音" style={{ marginLeft: 8 }}>
               <Volume2 size={14} />
             </button>
           </div>

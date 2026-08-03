@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp, Volume2, GraduationCap } from "lucide-react";
-import { Furigana } from "../lib/furigana.jsx";
+import { Furigana, WordRuby } from "../lib/furigana.jsx";
 import { speak } from "../lib/speak.js";
 import { N5_LESSONS } from "../data/n5notes.js";
 import { buildVocabCardsFromLessons, buildVocabCardsFromLesson } from "../lib/notesVocab.js";
@@ -81,7 +81,7 @@ export default function N5Notes({ onPractice }) {
                   <div className="vocab-chip-row">
                     {lesson.vocab.map((v, i) => (
                       <span key={i} className="vocab-chip">
-                        <ruby>{v.word}<rt>{v.reading}</rt></ruby>
+                        <WordRuby word={v.word} reading={v.reading} />
                         <span className="vocab-chip-zh">{v.zh}</span>
                       </span>
                     ))}
