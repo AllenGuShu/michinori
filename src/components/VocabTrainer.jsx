@@ -4,12 +4,22 @@ import { Furigana } from "../lib/furigana.jsx";
 import { speak } from "../lib/speak.js";
 import RouteProgress from "./RouteProgress.jsx";
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function VocabTrainer({ deck, deckLabel, onSrsMiss, onSrsKnow, isSrsDeck = false, emptyMessage }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState([]);
   const [missed, setMissed] = useState([]);
   const [reviewMode, setReviewMode] = useState(false);
+  const [shuffledDeck, setShuffledDeck] = useState(() => shuffle(deck));
 
   useEffect(() => {
     setIndex(0);
@@ -17,9 +27,10 @@ export default function VocabTrainer({ deck, deckLabel, onSrsMiss, onSrsKnow, is
     setKnown([]);
     setMissed([]);
     setReviewMode(false);
+    setShuffledDeck(shuffle(deck));
   }, [deck]);
 
-  const activeDeck = reviewMode ? deck.filter((c) => missed.includes(c.id)) : deck;
+  const activeDeck = reviewMode ? shuffledDeck.filter((c) => missed.includes(c.id)) : shuffledDeck;
   const card = activeDeck[index];
   const finished = index >= activeDeck.length;
 
@@ -48,6 +59,7 @@ export default function VocabTrainer({ deck, deckLabel, onSrsMiss, onSrsKnow, is
     } else {
       setKnown([]);
       setMissed([]);
+      setShuffledDeck(shuffle(deck));
     }
   };
 
