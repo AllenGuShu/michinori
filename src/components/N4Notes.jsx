@@ -1,14 +1,22 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Volume2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Volume2, GraduationCap } from "lucide-react";
 import { Furigana } from "../lib/furigana.jsx";
 import { speak } from "../lib/speak.js";
 import { N4_LESSONS } from "../data/n4notes.js";
+import { buildVocabCardsFromLessons, buildVocabCardsFromLesson } from "../lib/notesVocab.js";
 
-export default function N4Notes() {
+export default function N4Notes({ onPractice }) {
   const lessons = [...N4_LESSONS].sort((a, b) => b.number - a.number);
   const [openId, setOpenId] = useState(lessons[0]?.id || null);
 
   const toggle = (id) => setOpenId((cur) => (cur === id ? null : id));
+
+  const practiceAll = () => {
+    onPractice(buildVocabCardsFromLessons(N4_LESSONS, "n4"), "N4 全部單字");
+  };
+  const practiceLesson = (lesson) => {
+    onPractice(buildVocabCardsFromLesson(lesson, "n4"), `N4 Lesson ${lesson.number}`);
+  };
 
   if (lessons.length === 0) {
     return (
@@ -21,6 +29,10 @@ export default function N4Notes() {
   return (
     <div>
       <div className="n5-intro">📔 跟著課本進度累積的 N4 筆記，拍照給我，我幫你整理成新的一課。</div>
+
+      <button className="btn btn-accent n5-practice-all-btn" onClick={practiceAll}>
+        <GraduationCap size={16} /> 練習全部 N4 單字
+      </button>
 
       <div className="n5-lesson-list">
         {lessons.map((lesson) => {
@@ -60,7 +72,12 @@ export default function N4Notes() {
                     ))}
                   </div>
 
-                  <div className="n5-section-title">單字</div>
+                  <div className="n5-section-title-row">
+                    <div className="n5-section-title">單字</div>
+                    <button className="n5-practice-lesson-btn" onClick={() => practiceLesson(lesson)}>
+                      <GraduationCap size={13} /> 練習這課單字
+                    </button>
+                  </div>
                   <div className="vocab-chip-row">
                     {lesson.vocab.map((v, i) => (
                       <span key={i} className="vocab-chip">

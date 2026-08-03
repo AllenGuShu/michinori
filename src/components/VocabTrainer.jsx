@@ -112,11 +112,13 @@ export default function VocabTrainer({ deck, deckLabel, onSrsMiss, onSrsKnow, is
             <div className="zh-meaning">{card.zh}</div>
             <div className="romaji">{card.romaji}</div>
             {card.polite && <div className="polite-badge">敬語（ます／です形）：{card.polite}</div>}
-            <div className="example-box">
-              <div className="example-jp"><Furigana text={card.ex} /></div>
-              <div className="example-zh">{card.exZh}</div>
-              <div className="grammar-note">📌 {card.note}</div>
-            </div>
+            {card.ex && (
+              <div className="example-box">
+                <div className="example-jp"><Furigana text={card.ex} /></div>
+                {card.exZh && <div className="example-zh">{card.exZh}</div>}
+                {card.note && <div className="grammar-note">📌 {card.note}</div>}
+              </div>
+            )}
           </div>
         </div>
       </div>

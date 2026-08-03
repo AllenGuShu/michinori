@@ -6,6 +6,8 @@ import VocabTrainer from "./components/VocabTrainer.jsx";
 import DialogueTrainer from "./components/DialogueTrainer.jsx";
 import N5Notes from "./components/N5Notes.jsx";
 import N4Notes from "./components/N4Notes.jsx";
+import SearchBar from "./components/SearchBar.jsx";
+import ClozeTrainer from "./components/ClozeTrainer.jsx";
 import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
 import { markLearned, unmarkLearned } from "./lib/learned.js";
 import { recordActivity, getStreak } from "./lib/streak.js";
@@ -13,6 +15,14 @@ import LearnedSection from "./components/LearnedSection.jsx";
 
 export default function App() {
   const [mode, setMode] = useState("vocab");
+  const [practiceDeck, setPracticeDeck] = useState([]);
+  const [practiceLabel, setPracticeLabel] = useState("");
+
+  const startPractice = useCallback((deck, label) => {
+    setPracticeDeck(deck);
+    setPracticeLabel(label);
+    setMode("practice");
+  }, []);
   const [cat, setCat] = useState("core");
   const [theme, setTheme] = useState("全部");
   const [reviewQueue, setReviewQueue] = useState(() => loadQueue());
@@ -324,6 +334,72 @@ export default function App() {
         }
         .n5-tip-item { background: rgba(226,112,58,0.08); }
         .n5-tip-title { font-weight: 700; font-size: 13.5px; color: var(--ai-deep); margin-bottom: 4px; }
+        .n5-practice-all-btn { width: 100%; margin-bottom: 14px; }
+        .n5-section-title-row { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 8px; }
+        .n5-section-title-row .n5-section-title { margin: 0; }
+        .n5-practice-lesson-btn {
+          display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; color: var(--ai);
+          background: rgba(36,68,110,0.08); border: 1px solid rgba(36,68,110,0.2); border-radius: 999px;
+          padding: 4px 10px; cursor: pointer;
+        }
+
+        .search-bar-wrap { position: relative; margin-bottom: 14px; }
+        .search-input-row {
+          display: flex; align-items: center; gap: 8px; background: var(--paper-card);
+          border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px;
+        }
+        .search-icon { color: #a89f8f; flex-shrink: 0; }
+        .search-input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--ink); font-family: inherit; }
+        .search-clear-btn { border: none; background: none; color: #a89f8f; cursor: pointer; padding: 2px; flex-shrink: 0; }
+        .search-results {
+          position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 12px;
+          max-height: 320px; overflow-y: auto; box-shadow: 0 8px 24px rgba(22,48,79,0.15);
+        }
+        .search-empty { padding: 16px; font-size: 13px; color: #a89f8f; text-align: center; }
+        .search-result-row {
+          display: flex; align-items: baseline; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--paper);
+          flex-wrap: wrap;
+        }
+        .search-result-row:last-child { border-bottom: none; }
+        .search-result-type {
+          font-size: 10px; font-weight: 700; color: var(--shu); border: 1px solid var(--shu); border-radius: 3px;
+          padding: 0px 5px; flex-shrink: 0;
+        }
+        .search-result-word { font-family: 'Noto Serif JP', serif; font-weight: 700; color: var(--ai-deep); font-size: 14.5px; }
+        .search-result-reading { font-size: 11px; color: #a89f8f; }
+        .search-result-zh { font-size: 12.5px; color: #6b6355; }
+
+        .cloze-card {
+          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px;
+          padding: 20px; margin-bottom: 14px;
+        }
+        .cloze-hint { font-size: 12px; color: #8a8172; margin-bottom: 10px; }
+        .cloze-zh { font-size: 15px; font-weight: 700; color: var(--ai-deep); margin-bottom: 14px; }
+        .cloze-sentence {
+          font-family: 'Noto Serif JP', serif; font-size: 18px; line-height: 2.1; color: var(--ink);
+          padding: 12px; background: var(--paper); border-radius: 10px;
+        }
+        .cloze-sentence ruby rt { font-size: 10px; color: #8a8172; }
+        .cloze-answer-hint { margin-top: 10px; font-size: 12px; color: #a89f8f; }
+        .cloze-input-row { display: flex; gap: 10px; }
+        .cloze-input {
+          flex: 1; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line);
+          background: var(--paper-card); font-size: 15px; font-family: inherit; outline: none; color: var(--ink);
+        }
+        .cloze-input:focus { border-color: var(--ai); }
+        .cloze-result {
+          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px;
+        }
+        .cloze-result-correct { border-color: var(--wakakusa); background: rgba(122,155,87,0.1); }
+        .cloze-result-wrong { border-color: var(--shu); background: rgba(193,39,45,0.06); }
+        .cloze-result-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--ai-deep); }
+        .cloze-result-answer { font-size: 14px; margin-bottom: 10px; }
+        .cloze-full-sentence {
+          display: flex; align-items: center; font-size: 14px; line-height: 1.9; color: var(--ink);
+          padding-top: 10px; border-top: 1px dashed var(--line); margin-bottom: 12px;
+        }
+        .cloze-full-sentence ruby rt { font-size: 9.5px; color: #8a8172; }
         .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
@@ -434,6 +510,8 @@ export default function App() {
           <div className="subtitle">短短幾分鐘，把通勤路變成累積旅遊日文的路</div>
         </div>
 
+        <SearchBar />
+
         <div className="tabs-rows">
           <div className="tabs tabs-scroll">
             <button className={`tab-btn ${mode === "review" ? "active" : ""}`} onClick={() => setMode("review")}>
@@ -456,6 +534,9 @@ export default function App() {
             </button>
             <button className={`tab-btn ${mode === "n4notes" ? "active" : ""}`} onClick={() => setMode("n4notes")}>
               📗 N4筆記
+            </button>
+            <button className={`tab-btn ${mode === "cloze" ? "active" : ""}`} onClick={() => setMode("cloze")}>
+              ✍️ 造句練習
             </button>
             <button className={`tab-btn ${mode === "learned" ? "active" : ""}`} onClick={() => setMode("learned")}>
               ✅ 已學習
@@ -506,9 +587,25 @@ export default function App() {
 
         {mode === "dialogue" && <DialogueTrainer />}
 
-        {mode === "n5notes" && <N5Notes key={mode} />}
+        {mode === "n5notes" && <N5Notes key={mode} onPractice={startPractice} />}
 
-        {mode === "n4notes" && <N4Notes key={mode} />}
+        {mode === "n4notes" && <N4Notes key={mode} onPractice={startPractice} />}
+
+        {mode === "cloze" && <ClozeTrainer key={mode} />}
+
+        {mode === "practice" && (
+          <div>
+            <button className="back-link" onClick={() => setMode("vocab")}>← 回單字</button>
+            <VocabTrainer
+              key={`practice-${practiceLabel}`}
+              deck={practiceDeck}
+              deckLabel={practiceLabel}
+              onSrsMiss={handleSrsMiss}
+              onSrsKnow={handleSrsKnow}
+              emptyMessage="這裡還沒有單字可以練習。"
+            />
+          </div>
+        )}
 
         {mode === "learned" && <LearnedSection key={mode} />}
       </div>
