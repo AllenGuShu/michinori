@@ -4,10 +4,8 @@ import { CORE_VOCAB, TRAVEL_VOCAB, THEMES, ALL_VOCAB } from "./data/vocab.js";
 import GrammarReference from "./components/GrammarReference.jsx";
 import VocabTrainer from "./components/VocabTrainer.jsx";
 import DialogueTrainer from "./components/DialogueTrainer.jsx";
-import NewsSection from "./components/NewsSection.jsx";
-import ListeningTrainer from "./components/ListeningTrainer.jsx";
-import SpeakingTrainer from "./components/SpeakingTrainer.jsx";
 import N5Notes from "./components/N5Notes.jsx";
+import N4Notes from "./components/N4Notes.jsx";
 import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
 import { markLearned, unmarkLearned } from "./lib/learned.js";
 import { recordActivity, getStreak } from "./lib/streak.js";
@@ -108,7 +106,8 @@ export default function App() {
         }
         .subtitle { font-size: 13px; color: #6b6355; }
 
-        .tabs { display: flex; gap: 8px; margin: 18px 0 10px; }
+        .tabs { display: flex; gap: 8px; margin: 0 0 8px; }
+        .tabs-rows { margin: 18px 0 10px; display: flex; flex-direction: column; gap: 8px; }
         .tab-btn {
           flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
           padding: 10px 8px; border-radius: 10px; border: 1.5px solid var(--line);
@@ -310,18 +309,21 @@ export default function App() {
         .n5-section-title { font-weight: 700; font-size: 13px; color: var(--ai-deep); margin: 16px 0 8px; }
         .n5-grammar-chip { display: inline-block; margin-bottom: 4px; }
         .n5-sentence-list { display: flex; flex-direction: column; gap: 12px; }
-        .n5-sentence-item { background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+        .n5-sentence-item { background: var(--paper); border-radius: 10px; padding: 12px 14px; }
         .n5-sentence-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-        .n5-sentence-jp { font-size: 15.5px; line-height: 1.9; color: var(--ai-deep); }
-        .n5-sentence-jp ruby rt { font-size: 9.5px; color: #8a8172; }
+        .n5-sentence-jp { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 2; color: var(--ai-deep); font-weight: 600; }
+        .n5-sentence-jp ruby rt { font-size: 11px; color: #6b6355; }
         .n5-speak-btn {
-          flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+          flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line);
           background: var(--paper-card); color: var(--ai); display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .n5-sentence-zh { font-size: 12.5px; color: #6b6355; margin-top: 4px; }
-        .n5-sentence-note { margin-top: 8px; }
+        .n5-sentence-zh { font-size: 14px; color: #4a4438; margin-top: 6px; }
+        .n5-sentence-note {
+          margin-top: 8px; font-size: 13.5px; line-height: 1.7;
+          color: #3d4a2f; background: rgba(122,155,87,0.16);
+        }
         .n5-tip-item { background: rgba(226,112,58,0.08); }
-        .n5-tip-title { font-weight: 700; font-size: 12.5px; color: var(--ai-deep); margin-bottom: 4px; }
+        .n5-tip-title { font-weight: 700; font-size: 13.5px; color: var(--ai-deep); margin-bottom: 4px; }
         .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--ai-deep); margin: 14px 0 18px; }
         .options { display: flex; flex-direction: column; gap: 8px; }
         .option-btn {
@@ -432,35 +434,33 @@ export default function App() {
           <div className="subtitle">短短幾分鐘，把通勤路變成累積旅遊日文的路</div>
         </div>
 
-        <div className="tabs tabs-scroll">
-          <button className={`tab-btn ${mode === "vocab" ? "active" : ""}`} onClick={() => setMode("vocab")}>
-            <BookOpen size={16} /> 單字
-          </button>
-          <button className={`tab-btn ${mode === "review" ? "active" : ""}`} onClick={() => setMode("review")}>
-            <RotateCcw size={16} /> 今日複習
-            {dueDeck.length > 0 && <span className="due-badge">{dueDeck.length}</span>}
-          </button>
-          <button className={`tab-btn ${mode === "grammar" ? "active" : ""}`} onClick={() => setMode("grammar")}>
-            <PenLine size={16} /> 文法
-          </button>
-          <button className={`tab-btn ${mode === "dialogue" ? "active" : ""}`} onClick={() => setMode("dialogue")}>
-            💬 會話
-          </button>
-          <button className={`tab-btn ${mode === "listening" ? "active" : ""}`} onClick={() => setMode("listening")}>
-            🎧 聽力
-          </button>
-          <button className={`tab-btn ${mode === "speaking" ? "active" : ""}`} onClick={() => setMode("speaking")}>
-            🎤 口說
-          </button>
-          <button className={`tab-btn ${mode === "n5notes" ? "active" : ""}`} onClick={() => setMode("n5notes")}>
-            📔 N5筆記
-          </button>
-          <button className={`tab-btn ${mode === "news" ? "active" : ""}`} onClick={() => setMode("news")}>
-            📰 新聞
-          </button>
-          <button className={`tab-btn ${mode === "learned" ? "active" : ""}`} onClick={() => setMode("learned")}>
-            ✅ 已學習
-          </button>
+        <div className="tabs-rows">
+          <div className="tabs tabs-scroll">
+            <button className={`tab-btn ${mode === "review" ? "active" : ""}`} onClick={() => setMode("review")}>
+              <RotateCcw size={16} /> 今日複習
+              {dueDeck.length > 0 && <span className="due-badge">{dueDeck.length}</span>}
+            </button>
+            <button className={`tab-btn ${mode === "vocab" ? "active" : ""}`} onClick={() => setMode("vocab")}>
+              <BookOpen size={16} /> 單字
+            </button>
+            <button className={`tab-btn ${mode === "grammar" ? "active" : ""}`} onClick={() => setMode("grammar")}>
+              <PenLine size={16} /> 文法
+            </button>
+            <button className={`tab-btn ${mode === "dialogue" ? "active" : ""}`} onClick={() => setMode("dialogue")}>
+              💬 會話
+            </button>
+          </div>
+          <div className="tabs tabs-scroll">
+            <button className={`tab-btn ${mode === "n5notes" ? "active" : ""}`} onClick={() => setMode("n5notes")}>
+              📔 N5筆記
+            </button>
+            <button className={`tab-btn ${mode === "n4notes" ? "active" : ""}`} onClick={() => setMode("n4notes")}>
+              📗 N4筆記
+            </button>
+            <button className={`tab-btn ${mode === "learned" ? "active" : ""}`} onClick={() => setMode("learned")}>
+              ✅ 已學習
+            </button>
+          </div>
         </div>
 
         {mode === "vocab" && (
@@ -506,13 +506,9 @@ export default function App() {
 
         {mode === "dialogue" && <DialogueTrainer />}
 
-        {mode === "listening" && <ListeningTrainer key={mode} />}
-
-        {mode === "speaking" && <SpeakingTrainer key={mode} />}
-
         {mode === "n5notes" && <N5Notes key={mode} />}
 
-        {mode === "news" && <NewsSection />}
+        {mode === "n4notes" && <N4Notes key={mode} />}
 
         {mode === "learned" && <LearnedSection key={mode} />}
       </div>
