@@ -6,8 +6,8 @@ import { N4_LESSONS } from "../data/n4notes.js";
 import { buildVocabCardsFromLessons, buildVocabCardsFromLesson } from "../lib/notesVocab.js";
 
 export default function N4Notes({ onPractice }) {
-  const lessons = [...N4_LESSONS].sort((a, b) => b.number - a.number);
-  const [openId, setOpenId] = useState(lessons[0]?.id || null);
+  const lessons = [...N4_LESSONS].sort((a, b) => a.number - b.number);
+  const [openId, setOpenId] = useState(lessons[lessons.length - 1]?.id || null);
 
   const toggle = (id) => setOpenId((cur) => (cur === id ? null : id));
 
