@@ -1,32 +1,10 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { BookOpen, PenLine, RotateCcw, Moon, Sun } from "lucide-react";
-import { CORE_VOCAB, TRAVEL_VOCAB, THEMES, ALL_VOCAB } from "./data/vocab.js";
-import GrammarReference from "./components/GrammarReference.jsx";
-import VocabTrainer from "./components/VocabTrainer.jsx";
-import DialogueTrainer from "./components/DialogueTrainer.jsx";
-import N5Notes from "./components/N5Notes.jsx";
-import N4Notes from "./components/N4Notes.jsx";
-import SearchBar from "./components/SearchBar.jsx";
-import ClozeTrainer from "./components/ClozeTrainer.jsx";
-import { loadQueue, saveQueue, scheduleMiss, clearCard, getDueDeck } from "./lib/srs.js";
-import { markLearned, unmarkLearned } from "./lib/learned.js";
+import React, { useState, useEffect } from "react";
+import { Moon, Sun } from "lucide-react";
+import NewsAnalyzer from "./components/NewsAnalyzer.jsx";
 import { recordActivity, getStreak } from "./lib/streak.js";
 import { loadTheme, saveTheme } from "./lib/theme.js";
-import LearnedSection from "./components/LearnedSection.jsx";
 
 export default function App() {
-  const [mode, setMode] = useState("vocab");
-  const [practiceDeck, setPracticeDeck] = useState([]);
-  const [practiceLabel, setPracticeLabel] = useState("");
-
-  const startPractice = useCallback((deck, label) => {
-    setPracticeDeck(deck);
-    setPracticeLabel(label);
-    setMode("practice");
-  }, []);
-  const [cat, setCat] = useState("core");
-  const [theme, setTheme] = useState("全部");
-  const [reviewQueue, setReviewQueue] = useState(() => loadQueue());
   const [streak, setStreak] = useState(() => getStreak());
   const [darkMode, setDarkMode] = useState(() => loadTheme() === "dark");
 
@@ -37,41 +15,6 @@ export default function App() {
   useEffect(() => {
     setStreak(recordActivity());
   }, []);
-
-  const handleSrsMiss = useCallback((cardId) => {
-    setReviewQueue((prev) => {
-      const next = scheduleMiss(prev, cardId);
-      saveQueue(next);
-      return next;
-    });
-    unmarkLearned("vocab", cardId);
-  }, []);
-
-  const handleSrsKnow = useCallback((cardId) => {
-    setReviewQueue((prev) => {
-      const next = clearCard(prev, cardId);
-      saveQueue(next);
-      return next;
-    });
-    markLearned("vocab", cardId);
-  }, []);
-
-  const dueDeck = useMemo(() => getDueDeck(ALL_VOCAB, reviewQueue), [reviewQueue]);
-
-  const catLabel = cat === "core" ? "生活日文基礎" : "旅遊日文";
-  const themeOptions = THEMES[cat];
-
-  const handleCatChange = (c) => {
-    setCat(c);
-    setTheme("全部");
-  };
-
-  const sourceVocab = cat === "core" ? CORE_VOCAB : TRAVEL_VOCAB;
-  const vocabDeck = useMemo(() => {
-    return sourceVocab.filter((v) => theme === "全部" || v.theme === theme);
-  }, [sourceVocab, theme]);
-
-  const deckLabel = theme === "全部" ? catLabel : `${catLabel}・${theme}`;
 
   return (
     <div className={`app-root ${darkMode ? "dark" : ""}`}>
@@ -105,7 +48,7 @@ export default function App() {
           display: flex;
           justify-content: center;
         }
-        .shell { width: 100%; max-width: 440px; }
+        .shell { width: 100%; max-width: 480px; }
 
         .app-root.dark {
           --ink: #e5e1d5;
@@ -124,22 +67,22 @@ export default function App() {
           --note-text: #cfe0bb;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cg fill='none' stroke='%237ea2d6' stroke-opacity='0.12' stroke-width='1'%3E%3Cpath d='M0 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M0 30a20 20 0 0 1 40 0'/%3E%3Cpath d='M0 30a10 10 0 0 1 20 0'/%3E%3Cpath d='M-30 30a30 30 0 0 1 60 0'/%3E%3Cpath d='M30 30a30 30 0 0 1 60 0'/%3E%3C/g%3E%3C/svg%3E");
         }
+
+        .header { margin-bottom: 20px; }
+        .header-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .header-top-right { display: flex; align-items: center; gap: 8px; }
+        .eyebrow { font-size: 12px; letter-spacing: 0.14em; color: var(--kaki); font-weight: 700; text-transform: uppercase; }
+        .streak-badge {
+          font-size: 11.5px; font-weight: 700; color: var(--kaki); background: rgba(226,112,58,0.1);
+          border: 1px solid rgba(226,112,58,0.3); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+        }
         .dark-toggle-btn {
           width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
           background: var(--paper-card); color: var(--ink); display: flex; align-items: center;
           justify-content: center; cursor: pointer; flex-shrink: 0;
         }
-
-        .header { margin-bottom: 18px; }
-        .header-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .header-top-right { display: flex; align-items: center; gap: 8px; }
-        .streak-badge {
-          font-size: 11.5px; font-weight: 700; color: var(--kaki); background: rgba(226,112,58,0.1);
-          border: 1px solid rgba(226,112,58,0.3); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
-        }
-        .eyebrow { font-size: 12px; letter-spacing: 0.14em; color: var(--kaki); font-weight: 700; text-transform: uppercase; }
+        .title-row { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
         .title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 700; color: var(--heading); margin: 2px 0 2px; }
-        .title-row { display: flex; align-items: center; gap: 10px; }
         .hanko-stamp {
           width: 32px; height: 32px; flex-shrink: 0; position: relative;
           border: 1.5px solid var(--shu); border-radius: 5px; color: var(--shu);
@@ -147,199 +90,43 @@ export default function App() {
           font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px;
           transform: rotate(-7deg); opacity: 0.88;
         }
-        .hanko-stamp::after {
-          content: ""; position: absolute; inset: 3px; border: 1px solid var(--shu); border-radius: 3px;
-        }
-        .subtitle { font-size: 13px; color: var(--muted-1); }
-
-        .tabs { display: flex; gap: 8px; margin: 0 0 8px; }
-        .tabs-rows { margin: 18px 0 10px; display: flex; flex-direction: column; gap: 8px; }
-        .tab-btn {
-          flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-          padding: 10px 8px; border-radius: 10px; border: 1.5px solid var(--line);
-          background: var(--paper-card); color: var(--ink); font-weight: 600; font-size: 14px;
-          cursor: pointer; transition: all .15s ease;
-        }
-        .tab-btn.active { background: var(--ai); border-color: var(--ai); color: #fff; }
-
-        .cat-switch { display: flex; gap: 8px; margin-bottom: 10px; }
-        .cat-btn {
-          flex: 1; padding: 8px; border-radius: 999px; border: 1.5px solid var(--line);
-          background: transparent; font-size: 13px; font-weight: 600; color: var(--muted-1);
-          cursor: pointer; transition: all .15s ease;
-        }
-        .cat-btn.active { background: var(--kaki); border-color: var(--kaki); color: #fff; }
-
-        .theme-row {
-          display: flex; gap: 6px; margin-bottom: 18px; overflow-x: auto;
-          padding-bottom: 2px; -ms-overflow-style: none; scrollbar-width: none;
-        }
-        .theme-row::-webkit-scrollbar { display: none; }
-        .theme-chip {
-          flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
-          background: var(--paper-card); font-size: 12.5px; font-weight: 600; color: var(--muted-1); cursor: pointer; white-space: nowrap;
-        }
-        .theme-chip.active { background: var(--ai); border-color: var(--ai); color: #fff; }
-
-        .route-track { position: relative; height: 24px; margin: 4px 0 6px; }
-        .route-line {
-          position: absolute; top: 11px; left: 0; right: 0; height: 2px;
-          background-image: linear-gradient(to right, var(--line) 60%, transparent 0);
-          background-size: 10px 2px; background-repeat: repeat-x;
-        }
-        .route-fill { position: absolute; top: 11px; left: 0; height: 2px; background: var(--ai); transition: width .3s ease; }
-        .route-dot {
-          position: absolute; top: 5px; width: 14px; height: 14px; border-radius: 50%;
-          background: var(--kaki); border: 2px solid var(--paper-card); transition: left .3s ease;
-        }
-        .route-flag { position: absolute; right: -2px; top: -3px; font-size: 14px; }
-
-        .deck-meta { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; font-weight: 600; }
-        .pattern-chip { background: rgba(36,68,110,0.08); color: var(--heading); padding: 1px 8px; border-radius: 999px; font-weight: 700; }
-
-        .flip-card { perspective: 1200px; height: 340px; cursor: pointer; margin-bottom: 16px; }
-        .flip-card-inner {
-          position: relative; width: 100%; height: 100%; text-align: center;
-          transition: transform .5s cubic-bezier(.2,.7,.3,1); transform-style: preserve-3d;
-        }
-        .flip-card.is-flipped .flip-card-inner { transform: rotateY(180deg); }
-        .flip-face {
-          position: absolute; inset: 0; backface-visibility: hidden;
-          border-radius: 16px; border: 1.5px solid var(--line); background: var(--paper-card);
-          display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 20px; box-shadow: 0 2px 0 var(--line); overflow-y: auto;
-        }
-        .flip-front::before, .flip-front::after {
-          content: ""; position: absolute; width: 22px; height: 22px; border-color: var(--shu);
-          opacity: 0.55; top: 16px;
-        }
-        .flip-front::before { left: 16px; border-left: 2px solid var(--shu); border-top: 2px solid var(--shu); }
-        .flip-front::after { right: 16px; top: auto; bottom: 16px; border-right: 2px solid var(--shu); border-bottom: 2px solid var(--shu); }
-        .flip-back { transform: rotateY(180deg); background: var(--ai-deep); border-color: var(--ai-deep); padding: 22px; }
-        .level-tag {
-          position: absolute; top: 12px; left: 14px; font-size: 11px; font-weight: 700;
-          color: var(--shu); border: 1px solid var(--shu); border-radius: 3px; padding: 1px 7px;
-          font-family: 'Noto Serif JP', serif; transform: rotate(-3deg);
-        }
-        .jp-kanji { font-family: 'Noto Serif JP', serif; font-size: 34px; font-weight: 700; color: var(--heading); }
-        .jp-kana { font-size: 15px; color: var(--muted-2); margin-top: 6px; }
-        .tap-hint { position: absolute; bottom: 12px; font-size: 11px; color: var(--muted-3); }
-        .zh-meaning { font-size: 21px; font-weight: 700; color: #fff; flex-shrink: 0; }
-        .romaji { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; font-style: italic; flex-shrink: 0; }
-        .polite-badge {
-          margin-top: 10px; font-size: 11.5px; color: #ffe1cc; background: rgba(226,112,58,0.25);
-          border: 1px solid rgba(226,112,58,0.5); border-radius: 8px; padding: 4px 10px; flex-shrink: 0;
-        }
-        .example-box { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.25); width: 100%; }
-        .example-jp { font-size: 15px; color: #fff; line-height: 2.1; }
-        .example-jp ruby rt { font-size: 10px; color: rgba(255,255,255,0.75); }
-        .example-zh { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 6px; }
-        .grammar-note {
-          margin-top: 10px; font-size: 11.5px; color: #e8f0e0; background: rgba(122,155,87,0.22);
-          border-radius: 8px; padding: 8px 10px; line-height: 1.5; text-align: left;
-        }
-
-        .card-controls { display: flex; align-items: center; gap: 10px; }
-        .icon-btn {
-          width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line);
-          background: var(--paper-card); display: flex; align-items: center; justify-content: center;
-          color: var(--ai); cursor: pointer; flex-shrink: 0;
-        }
-        .btn {
-          flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-          padding: 12px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer;
-        }
-        .btn-miss { background: #f1e4dd; color: #b0472a; }
-        .btn-know { background: var(--wakakusa); color: #fff; }
-        .btn-accent { background: var(--kaki); color: #fff; }
-        .btn-ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
-
-        .grammar-card {
-          position: relative; background: var(--paper-card); border: 1.5px solid var(--line);
-          border-radius: 16px; padding: 22px 18px 18px; box-shadow: 0 2px 0 var(--line);
-        }
-        .grammar-ref-card {
-          position: relative; background: var(--ai-deep); border-radius: 16px;
-          padding: 26px 20px 20px; margin-bottom: 16px; color: #fff;
-        }
-        .grammar-ref-pattern {
-          font-family: 'Noto Serif JP', serif; font-size: 26px; font-weight: 700; margin-top: 10px;
-        }
-        .grammar-ref-meaning { font-size: 15px; color: rgba(255,255,255,0.75); margin-top: 6px; }
-        .example-box-light {
-          margin-top: 18px; padding: 14px; background: rgba(255,255,255,0.08); border-radius: 12px;
-          border-top: none;
-        }
-        .example-jp-dark { font-size: 15.5px; line-height: 2.1; color: #fff; }
-        .example-jp-dark ruby rt { font-size: 10px; color: rgba(255,255,255,0.75); }
-        .example-zh-dark { font-size: 12.5px; color: rgba(255,255,255,0.65); margin-top: 6px; }
-        .grammar-note-light {
-          margin-top: 14px; font-size: 12.5px; color: #e8f0e0; background: rgba(122,155,87,0.28);
-          border-radius: 8px; padding: 10px 12px; line-height: 1.6; text-align: left;
-        }
-        .learned-tag {
-          position: absolute; top: 12px; right: 14px; font-size: 11px; font-weight: 700;
-          color: #d8ecc8; background: rgba(122,155,87,0.35); border-radius: 999px; padding: 2px 10px;
-        }
-        .learn-toggle-btn { width: 100%; margin-top: 10px; }
-        .btn-learned-active { background: var(--wakakusa); color: #fff; }
-
-        .learned-summary { display: flex; gap: 12px; margin-bottom: 16px; }
-        .learned-summary-item {
-          flex: 1; background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 12px;
-          padding: 14px; text-align: center;
-        }
-        .learned-summary-num { display: block; font-size: 26px; font-weight: 700; color: var(--ai); }
-        .learned-summary-lbl { font-size: 11.5px; color: var(--muted-2); }
-        .learned-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
-        .learned-row {
-          position: relative; background: var(--paper-card); border: 1.5px solid var(--line);
-          border-radius: 12px; padding: 12px 40px 12px 14px; cursor: pointer;
-        }
-        .learned-row-main { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-        .learned-row-kanji { font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 16px; color: var(--heading); }
-        .learned-row-pattern { font-size: 15px; }
-        .learned-row-kana { font-size: 12px; color: var(--muted-3); }
-        .learned-row-zh { font-size: 13px; color: var(--muted-1); }
-        .learned-remove-btn {
-          position: absolute; top: 10px; right: 10px; background: none; border: none; color: #b0472a;
-          cursor: pointer; padding: 4px;
-        }
-        .learned-row-detail {
-          margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line);
-          font-size: 13.5px; line-height: 1.8; color: var(--ink);
-        }
-        .learned-row-detail-zh { font-size: 12px; color: var(--muted-2); margin-top: 2px; }
-
-        .listening-card {
-          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px;
-          padding: 32px 20px; text-align: center; margin-bottom: 16px;
-        }
-        .listen-play-btn {
-          width: 72px; height: 72px; border-radius: 50%; border: none; background: var(--ai);
-          color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-        .listening-hint { margin-top: 14px; font-size: 13px; color: var(--muted-2); }
-        .listening-transcript {
-          margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line);
-          font-size: 16px; line-height: 2; color: var(--heading);
-        }
-        .listening-transcript ruby rt { font-size: 10px; color: var(--muted-3); }
-
-        .speaking-result {
-          margin-top: 14px; background: var(--paper-card); border: 1.5px solid var(--line);
-          border-radius: 14px; padding: 16px;
-        }
-        .speaking-result-row { font-size: 15px; margin-bottom: 10px; }
-        .speaking-result-label { font-weight: 700; color: var(--heading); margin-right: 6px; }
-        .speaking-score-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
-        .speaking-score-fill { height: 100%; background: var(--wakakusa); transition: width .3s ease; }
-        .speaking-score-label { font-size: 12.5px; color: var(--muted-1); margin-top: 6px; }
+        .hanko-stamp::after { content: ""; position: absolute; inset: 3px; border: 1px solid var(--shu); border-radius: 3px; }
+        .subtitle { font-size: 13px; color: var(--muted-1); margin-top: 4px; }
 
         .n5-intro {
           font-size: 12px; color: var(--heading); background: rgba(36,68,110,0.08);
           border: 1px solid rgba(36,68,110,0.18); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.6;
         }
+
+        .news-upload-card {
+          background: var(--paper-card); border: 1.5px dashed var(--line); border-radius: 16px;
+          padding: 20px; text-align: center; margin-bottom: 16px;
+        }
+        .news-upload-btn {
+          display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px;
+          border: 1.5px solid var(--ai); background: var(--paper); color: var(--ai); font-weight: 700;
+          font-size: 14px; cursor: pointer;
+        }
+        .news-preview-wrap { margin-top: 14px; }
+        .news-preview-img { max-width: 100%; max-height: 320px; border-radius: 12px; border: 1px solid var(--line); }
+        .btn {
+          display: flex; align-items: center; justify-content: center; gap: 6px;
+          padding: 12px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer;
+        }
+        .btn-accent { background: var(--kaki); color: #fff; }
+        .btn:disabled { opacity: 0.6; cursor: default; }
+        .news-analyze-btn { width: 100%; margin-top: 14px; }
+        .news-error-note { margin-top: 12px; color: #b0472a; text-align: left; }
+        .news-zh-block { font-size: 12.5px; color: var(--muted-2); margin: 10px 0 4px; line-height: 1.7; }
+        .news-delete-btn {
+          display: inline-flex; align-items: center; gap: 4px; margin-top: 14px; font-size: 12px;
+          color: var(--shu); background: none; border: 1px solid var(--shu); border-radius: 999px;
+          padding: 5px 12px; cursor: pointer;
+        }
+        .spin-icon { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .n5-section-title { font-weight: 700; font-size: 13px; color: var(--heading); margin: 16px 0 8px; }
         .n5-lesson-list { display: flex; flex-direction: column; gap: 10px; }
         .n5-lesson-card { background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; }
         .n5-lesson-header {
@@ -348,175 +135,21 @@ export default function App() {
         }
         .n5-lesson-badge {
           font-size: 11px; font-weight: 700; color: #fff; background: var(--ai); border-radius: 999px;
-          padding: 3px 10px; flex-shrink: 0;
+          padding: 3px 10px; flex-shrink: 0; white-space: nowrap;
         }
         .n5-lesson-title { flex: 1; font-weight: 700; font-size: 14.5px; color: var(--heading); }
         .n5-lesson-body { padding: 0 16px 18px; border-top: 1px dashed var(--line); }
-        .n5-section-title { font-weight: 700; font-size: 13px; color: var(--heading); margin: 16px 0 8px; }
-        .n5-grammar-chip { display: inline-block; margin-bottom: 4px; }
         .n5-sentence-list { display: flex; flex-direction: column; gap: 12px; }
         .n5-sentence-item { background: var(--paper); border-radius: 10px; padding: 12px 14px; }
         .n5-sentence-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-        .n5-sentence-jp { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 2; color: var(--heading); font-weight: 600; }
-        .n5-sentence-jp ruby rt { font-size: 11px; color: var(--muted-1); }
+        .n5-sentence-jp { font-family: 'Noto Serif JP', serif; font-size: 17px; line-height: 2; color: var(--heading); }
+        .n5-sentence-jp ruby rt { font-size: 10px; color: var(--muted-2); }
         .n5-speak-btn {
-          flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line);
+          flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
           background: var(--paper-card); color: var(--ai); display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .n5-sentence-zh { font-size: 14px; color: var(--muted-1); margin-top: 6px; }
-        .n5-sentence-note {
-          margin-top: 8px; font-size: 13.5px; line-height: 1.7;
-          color: var(--note-text); background: rgba(122,155,87,0.16);
-        }
-        .n5-tip-item { background: rgba(226,112,58,0.08); }
-        .n5-tip-title { font-weight: 700; font-size: 13.5px; color: var(--heading); margin-bottom: 4px; }
-        .n5-practice-all-btn { width: 100%; margin-bottom: 14px; }
-        .n5-section-title-row { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 8px; }
-        .n5-section-title-row .n5-section-title { margin: 0; }
-        .n5-practice-lesson-btn {
-          display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; color: var(--ai);
-          background: rgba(36,68,110,0.08); border: 1px solid rgba(36,68,110,0.2); border-radius: 999px;
-          padding: 4px 10px; cursor: pointer;
-        }
+        .n5-sentence-zh { font-size: 12.5px; color: var(--muted-1); margin-top: 4px; }
 
-        .search-bar-wrap { position: relative; margin-bottom: 14px; }
-        .search-input-row {
-          display: flex; align-items: center; gap: 8px; background: var(--paper-card);
-          border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px;
-        }
-        .search-icon { color: var(--muted-3); flex-shrink: 0; }
-        .search-input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--ink); font-family: inherit; }
-        .search-clear-btn { border: none; background: none; color: var(--muted-3); cursor: pointer; padding: 2px; flex-shrink: 0; }
-        .search-results {
-          position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
-          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 12px;
-          max-height: 320px; overflow-y: auto; box-shadow: 0 8px 24px rgba(22,48,79,0.15);
-        }
-        .search-empty { padding: 16px; font-size: 13px; color: var(--muted-3); text-align: center; }
-        .search-result-row {
-          display: flex; align-items: baseline; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--paper);
-          flex-wrap: wrap;
-        }
-        .search-result-row:last-child { border-bottom: none; }
-        .search-result-type {
-          font-size: 10px; font-weight: 700; color: var(--shu); border: 1px solid var(--shu); border-radius: 3px;
-          padding: 0px 5px; flex-shrink: 0;
-        }
-        .search-result-word { font-family: 'Noto Serif JP', serif; font-weight: 700; color: var(--heading); font-size: 14.5px; }
-        .search-result-reading { font-size: 11px; color: var(--muted-3); }
-        .search-result-zh { font-size: 12.5px; color: var(--muted-1); }
-
-        .cloze-card {
-          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px;
-          padding: 20px; margin-bottom: 14px;
-        }
-        .cloze-hint { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; }
-        .cloze-zh { font-size: 15px; font-weight: 700; color: var(--heading); margin-bottom: 14px; }
-        .cloze-sentence {
-          font-family: 'Noto Serif JP', serif; font-size: 18px; line-height: 2.1; color: var(--ink);
-          padding: 12px; background: var(--paper); border-radius: 10px;
-        }
-        .cloze-sentence ruby rt { font-size: 10px; color: var(--muted-2); }
-        .cloze-answer-hint { margin-top: 10px; font-size: 12px; color: var(--muted-3); }
-        .cloze-input-row { display: flex; gap: 10px; }
-        .cloze-input {
-          flex: 1; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line);
-          background: var(--paper-card); font-size: 15px; font-family: inherit; outline: none; color: var(--ink);
-        }
-        .cloze-input:focus { border-color: var(--ai); }
-        .cloze-result {
-          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px;
-        }
-        .cloze-result-correct { border-color: var(--wakakusa); background: rgba(122,155,87,0.1); }
-        .cloze-result-wrong { border-color: var(--shu); background: rgba(193,39,45,0.06); }
-        .cloze-result-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--heading); }
-        .cloze-result-answer { font-size: 14px; margin-bottom: 10px; }
-        .cloze-full-sentence {
-          display: flex; align-items: center; font-size: 14px; line-height: 1.9; color: var(--ink);
-          padding-top: 10px; border-top: 1px dashed var(--line); margin-bottom: 12px;
-        }
-        .cloze-full-sentence ruby rt { font-size: 9.5px; color: var(--muted-2); }
-        .sentence { font-family: 'Noto Serif JP', serif; font-size: 19px; line-height: 1.7; color: var(--heading); margin: 14px 0 18px; }
-        .options { display: flex; flex-direction: column; gap: 8px; }
-        .option-btn {
-          text-align: left; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line);
-          background: var(--paper); font-size: 15px; cursor: pointer; color: var(--ink);
-        }
-        .option-btn:disabled { cursor: default; }
-        .option-correct { border-color: var(--wakakusa); background: rgba(122,155,87,0.16); font-weight: 700; }
-        .option-wrong { border-color: var(--kaki); background: rgba(226,112,58,0.12); }
-
-        .explain { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
-        .explain-zh { font-weight: 700; margin-bottom: 4px; }
-        .explain-note { font-size: 13px; color: var(--muted-1); margin-bottom: 14px; }
-        .next-btn { width: 100%; }
-
-        .result-card { text-align: center; background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px; padding: 28px 20px; }
-        .result-card h3 { font-family: 'Noto Serif JP', serif; color: var(--heading); margin-bottom: 16px; }
-        .result-stats { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; }
-        .result-stats .num { display: block; font-size: 28px; font-weight: 700; color: var(--ai); }
-        .result-stats .lbl { font-size: 12px; color: var(--muted-2); }
-        .result-actions { display: flex; flex-direction: column; gap: 10px; }
-
-        .empty-state { text-align: center; padding: 40px 0; color: var(--muted-2); }
-
-        .tabs-scroll { overflow-x: auto; flex-wrap: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
-        .tabs-scroll::-webkit-scrollbar { display: none; }
-        .tabs-scroll .tab-btn { flex: 0 0 auto; padding: 10px 14px; position: relative; }
-        .due-badge {
-          background: var(--shu); color: #fff; font-size: 10px; font-weight: 700;
-          border-radius: 999px; padding: 1px 6px; margin-left: 2px;
-        }
-
-        .back-link { background: none; border: none; color: var(--ai); font-weight: 700; font-size: 13px; cursor: pointer; padding: 0 0 12px; }
-
-        .scenario-list { display: flex; flex-direction: column; gap: 10px; }
-        .scenario-card {
-          display: flex; align-items: center; gap: 12px; text-align: left;
-          background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 14px;
-          padding: 14px; cursor: pointer; color: var(--ink);
-        }
-        .scenario-icon { font-size: 24px; }
-        .scenario-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-        .scenario-title { font-weight: 700; font-size: 15px; }
-        .scenario-theme { font-size: 12px; color: var(--muted-2); }
-
-        .scenario-header { display: flex; flex-direction: column; margin-bottom: 8px; }
-        .scenario-header-title { font-weight: 700; color: var(--heading); font-size: 15px; margin-bottom: 4px; }
-
-        .dialogue-scroll { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; max-height: 320px; overflow-y: auto; }
-        .bubble-row { display: flex; }
-        .row-user { justify-content: flex-end; }
-        .row-other { justify-content: flex-start; }
-        .bubble { max-width: 82%; border-radius: 14px; padding: 10px 13px; }
-        .bubble-other { background: var(--paper-card); border: 1.5px solid var(--line); border-bottom-left-radius: 4px; }
-        .bubble-user { background: var(--ai); color: #fff; border-bottom-right-radius: 4px; }
-        .bubble-jp { font-size: 14.5px; line-height: 1.9; }
-        .bubble-jp ruby rt { font-size: 9px; }
-        .bubble-user .bubble-jp ruby rt { color: rgba(255,255,255,0.75); }
-        .bubble-zh { font-size: 11.5px; opacity: 0.65; margin-top: 4px; }
-        .dialogue-current { margin-top: 4px; }
-        .bubble-current { max-width: 100%; margin-bottom: 12px; }
-        .prompt-text { font-size: 13px; color: var(--muted-2); font-weight: 600; margin-bottom: 10px; }
-
-        .news-banner {
-          font-size: 12px; color: var(--heading); background: rgba(36,68,110,0.08);
-          border: 1px solid rgba(36,68,110,0.18); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.6;
-        }
-        .news-card {
-          display: block; text-align: left; width: 100%; background: var(--paper-card);
-          border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; cursor: pointer; color: var(--ink);
-        }
-        .news-date { font-size: 11px; color: var(--muted-3); font-weight: 600; margin-bottom: 4px; }
-        .news-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--heading); line-height: 1.7; }
-        .news-title-zh { font-size: 12px; color: var(--muted-2); margin-top: 4px; }
-        .news-detail { background: var(--paper-card); border: 1.5px solid var(--line); border-radius: 16px; padding: 18px; }
-        .news-detail-title { font-family: 'Noto Serif JP', serif; font-size: 19px; color: var(--heading); line-height: 1.8; margin: 6px 0 2px; }
-        .news-detail-title-zh { font-size: 13px; color: var(--muted-2); margin-bottom: 14px; }
-        .news-body-line { font-size: 15px; line-height: 2.1; margin-bottom: 6px; }
-        .news-body-line ruby rt { font-size: 9.5px; color: var(--muted-2); }
-        .news-body-zh { font-size: 12.5px; color: var(--muted-2); margin: 10px 0 18px; padding-top: 10px; border-top: 1px dashed var(--line); line-height: 1.7; }
-        .news-section-title { font-weight: 700; font-size: 13px; color: var(--heading); margin: 14px 0 8px; }
         .vocab-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .vocab-chip {
           display: flex; align-items: baseline; gap: 6px; background: rgba(226,112,58,0.1);
@@ -524,19 +157,26 @@ export default function App() {
         }
         .vocab-chip ruby rt { font-size: 9px; }
         .vocab-chip-zh { font-size: 11px; color: var(--muted-1); }
-        .grammar-list { display: flex; flex-direction: column; gap: 8px; }
-        .grammar-list-item { display: flex; flex-direction: column; gap: 4px; background: rgba(122,155,87,0.1); border-radius: 10px; padding: 8px 10px; }
-        .grammar-list-note { font-size: 12.5px; color: var(--note-text); line-height: 1.5; }
 
-        @media (prefers-reduced-motion: reduce) {
-          .flip-card-inner, .route-fill, .route-dot { transition: none !important; }
+        .pattern-chip {
+          display: inline-block; background: rgba(36,68,110,0.08); color: var(--heading);
+          padding: 1px 8px; border-radius: 999px; font-weight: 700; font-size: 12px;
         }
+        .grammar-list { display: flex; flex-direction: column; gap: 8px; }
+        .grammar-list-item { display: flex; flex-direction: column; gap: 4px; background: rgba(122,155,87,0.1); border-radius: 10px; padding: 10px 12px; }
+        .grammar-list-note { font-size: 12.5px; color: var(--note-text); line-height: 1.5; }
+        .grammar-note {
+          margin-top: 10px; font-size: 12.5px; color: var(--note-text); background: rgba(122,155,87,0.16);
+          border-radius: 8px; padding: 8px 10px; line-height: 1.5; text-align: left;
+        }
+
+        .empty-state { text-align: center; padding: 40px 0; color: var(--muted-2); }
       `}</style>
 
       <div className="shell">
         <div className="header">
           <div className="header-top-row">
-            <div className="eyebrow">通勤時間 · 學好用的日文</div>
+            <div className="eyebrow">每天讀新聞 · 練日文</div>
             <div className="header-top-right">
               {streak.count > 0 && <div className="streak-badge">🔥 連續 {streak.count} 天</div>}
               <button
@@ -549,110 +189,13 @@ export default function App() {
             </div>
           </div>
           <div className="title-row">
-            <div className="title">みちのり</div>
-            <span className="hanko-stamp" aria-hidden="true">学</span>
+            <div className="title">ニュース手帳</div>
+            <span className="hanko-stamp" aria-hidden="true">帳</span>
           </div>
-          <div className="subtitle">短短幾分鐘，把通勤路變成累積旅遊日文的路</div>
+          <div className="subtitle">上傳新聞截圖，自動整理單字、文法與延伸例句</div>
         </div>
 
-        <SearchBar />
-
-        <div className="tabs-rows">
-          <div className="tabs tabs-scroll">
-            <button className={`tab-btn ${mode === "review" ? "active" : ""}`} onClick={() => setMode("review")}>
-              <RotateCcw size={16} /> 今日複習
-              {dueDeck.length > 0 && <span className="due-badge">{dueDeck.length}</span>}
-            </button>
-            <button className={`tab-btn ${mode === "vocab" ? "active" : ""}`} onClick={() => setMode("vocab")}>
-              <BookOpen size={16} /> 單字
-            </button>
-            <button className={`tab-btn ${mode === "grammar" ? "active" : ""}`} onClick={() => setMode("grammar")}>
-              <PenLine size={16} /> 文法
-            </button>
-            <button className={`tab-btn ${mode === "dialogue" ? "active" : ""}`} onClick={() => setMode("dialogue")}>
-              💬 會話
-            </button>
-          </div>
-          <div className="tabs tabs-scroll">
-            <button className={`tab-btn ${mode === "n5notes" ? "active" : ""}`} onClick={() => setMode("n5notes")}>
-              📔 N5筆記
-            </button>
-            <button className={`tab-btn ${mode === "n4notes" ? "active" : ""}`} onClick={() => setMode("n4notes")}>
-              📗 N4筆記
-            </button>
-            <button className={`tab-btn ${mode === "cloze" ? "active" : ""}`} onClick={() => setMode("cloze")}>
-              ✍️ 造句練習
-            </button>
-            <button className={`tab-btn ${mode === "learned" ? "active" : ""}`} onClick={() => setMode("learned")}>
-              ✅ 已學習
-            </button>
-          </div>
-        </div>
-
-        {mode === "vocab" && (
-          <div className="cat-switch">
-            <button className={`cat-btn ${cat === "core" ? "active" : ""}`} onClick={() => handleCatChange("core")}>生活日文基礎</button>
-            <button className={`cat-btn ${cat === "travel" ? "active" : ""}`} onClick={() => handleCatChange("travel")}>旅遊日文</button>
-          </div>
-        )}
-
-        {mode === "vocab" && (
-          <div className="theme-row">
-            {themeOptions.map((t) => (
-              <button key={t} className={`theme-chip ${theme === t ? "active" : ""}`} onClick={() => setTheme(t)}>
-                {t}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {mode === "vocab" && (
-          <VocabTrainer
-            key={`vocab-${cat}-${theme}`}
-            deck={vocabDeck}
-            deckLabel={deckLabel}
-            onSrsMiss={handleSrsMiss}
-            onSrsKnow={handleSrsKnow}
-          />
-        )}
-
-        {mode === "review" && (
-          <VocabTrainer
-            key={`review-${dueDeck.length}`}
-            deck={dueDeck}
-            deckLabel="今日複習"
-            isSrsDeck
-            onSrsMiss={handleSrsMiss}
-            onSrsKnow={handleSrsKnow}
-            emptyMessage="今天沒有需要複習的字，太棒了！去練練新單字吧。"
-          />
-        )}
-
-        {mode === "grammar" && <GrammarReference />}
-
-        {mode === "dialogue" && <DialogueTrainer />}
-
-        {mode === "n5notes" && <N5Notes key={mode} onPractice={startPractice} />}
-
-        {mode === "n4notes" && <N4Notes key={mode} onPractice={startPractice} />}
-
-        {mode === "cloze" && <ClozeTrainer key={mode} />}
-
-        {mode === "practice" && (
-          <div>
-            <button className="back-link" onClick={() => setMode("vocab")}>← 回單字</button>
-            <VocabTrainer
-              key={`practice-${practiceLabel}`}
-              deck={practiceDeck}
-              deckLabel={practiceLabel}
-              onSrsMiss={handleSrsMiss}
-              onSrsKnow={handleSrsKnow}
-              emptyMessage="這裡還沒有單字可以練習。"
-            />
-          </div>
-        )}
-
-        {mode === "learned" && <LearnedSection key={mode} />}
+        <NewsAnalyzer />
       </div>
     </div>
   );

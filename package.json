@@ -6,11 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "fetch-news": "node scripts/fetch-news.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
     "lucide-react": "^0.383.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

@@ -1,7 +1,7 @@
 {
-  "name": "みちのり｜通勤日文學習",
-  "short_name": "みちのり",
-  "description": "通勤時間學旅遊日文：單字、文法、聽力、口說、情境會話",
+  "name": "ニュース手帳｜新聞日文分析",
+  "short_name": "ニュース手帳",
+  "description": "上傳新聞截圖，自動整理單字、文法與延伸例句",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
