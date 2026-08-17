@@ -31,3 +31,31 @@ export function deleteArticle(id) {
   persist(next);
   return next;
 }
+
+// 彙整所有已分析新聞裡的單字，同一個字只保留第一次出現的那筆
+export function getAllVocab() {
+  const archive = loadArchive();
+  const map = new Map();
+  archive.forEach((a) => {
+    (a.vocab || []).forEach((v) => {
+      if (!map.has(v.word)) {
+        map.set(v.word, { ...v, sourceTitle: a.title, sourceDate: a.date });
+      }
+    });
+  });
+  return Array.from(map.values());
+}
+
+// 彙整所有已分析新聞裡的文法句型，同一個句型只保留第一次出現的那筆
+export function getAllGrammar() {
+  const archive = loadArchive();
+  const map = new Map();
+  archive.forEach((a) => {
+    (a.grammar || []).forEach((g) => {
+      if (!map.has(g.pattern)) {
+        map.set(g.pattern, { ...g, sourceTitle: a.title, sourceDate: a.date });
+      }
+    });
+  });
+  return Array.from(map.values());
+}

@@ -69,7 +69,6 @@ export default function NewsAnalyzer() {
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           onChange={handleFileChange}
           style={{ display: "none" }}
         />

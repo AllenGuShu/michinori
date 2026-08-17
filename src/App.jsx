@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Camera, BookOpen, PenLine } from "lucide-react";
 import NewsAnalyzer from "./components/NewsAnalyzer.jsx";
+import VocabCards from "./components/VocabCards.jsx";
+import GrammarCards from "./components/GrammarCards.jsx";
 import { recordActivity, getStreak } from "./lib/streak.js";
 import { loadTheme, saveTheme } from "./lib/theme.js";
 
 export default function App() {
+  const [mode, setMode] = useState("news");
   const [streak, setStreak] = useState(() => getStreak());
   const [darkMode, setDarkMode] = useState(() => loadTheme() === "dark");
 
@@ -171,6 +174,24 @@ export default function App() {
         }
 
         .empty-state { text-align: center; padding: 40px 0; color: var(--muted-2); }
+
+        .tabs { display: flex; gap: 8px; margin: 4px 0 18px; }
+        .tab-btn {
+          flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+          padding: 10px 8px; border-radius: 10px; border: 1.5px solid var(--line);
+          background: var(--paper-card); color: var(--ink); font-weight: 600; font-size: 13.5px;
+          cursor: pointer; transition: all .15s ease;
+        }
+        .tab-btn.active { background: var(--ai); border-color: var(--ai); color: #fff; }
+
+        .vocab-card-word {
+          flex: 1; font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 17px; color: var(--heading);
+          text-align: left;
+        }
+        .vocab-card-word ruby rt { font-size: 10px; color: var(--muted-2); }
+        .vocab-card-zh-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .vocab-card-zh { font-size: 15px; color: var(--ink); }
+        .vocab-card-source { margin-top: 10px; font-size: 11.5px; color: var(--muted-3); }
       `}</style>
 
       <div className="shell">
@@ -195,7 +216,21 @@ export default function App() {
           <div className="subtitle">上傳新聞截圖，自動整理單字、文法與延伸例句</div>
         </div>
 
-        <NewsAnalyzer />
+        <div className="tabs">
+          <button className={`tab-btn ${mode === "news" ? "active" : ""}`} onClick={() => setMode("news")}>
+            <Camera size={16} /> 新聞分析
+          </button>
+          <button className={`tab-btn ${mode === "vocab" ? "active" : ""}`} onClick={() => setMode("vocab")}>
+            <BookOpen size={16} /> 單字卡
+          </button>
+          <button className={`tab-btn ${mode === "grammar" ? "active" : ""}`} onClick={() => setMode("grammar")}>
+            <PenLine size={16} /> 文法卡
+          </button>
+        </div>
+
+        {mode === "news" && <NewsAnalyzer />}
+        {mode === "vocab" && <VocabCards key={mode} />}
+        {mode === "grammar" && <GrammarCards key={mode} />}
       </div>
     </div>
   );
