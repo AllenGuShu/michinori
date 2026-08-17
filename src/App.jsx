@@ -184,14 +184,66 @@ export default function App() {
         }
         .tab-btn.active { background: var(--ai); border-color: var(--ai); color: #fff; }
 
-        .vocab-card-word {
-          flex: 1; font-family: 'Noto Serif JP', serif; font-weight: 700; font-size: 17px; color: var(--heading);
-          text-align: left;
+        .theme-row {
+          display: flex; gap: 6px; margin-bottom: 18px; overflow-x: auto;
+          padding-bottom: 2px; -ms-overflow-style: none; scrollbar-width: none;
         }
-        .vocab-card-word ruby rt { font-size: 10px; color: var(--muted-2); }
-        .vocab-card-zh-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .vocab-card-zh { font-size: 15px; color: var(--ink); }
-        .vocab-card-source { margin-top: 10px; font-size: 11.5px; color: var(--muted-3); }
+        .theme-row::-webkit-scrollbar { display: none; }
+        .theme-chip {
+          flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+          background: var(--paper-card); font-size: 12.5px; font-weight: 600; color: var(--muted-1);
+          cursor: pointer; white-space: nowrap;
+        }
+        .theme-chip.active { background: var(--ai); border-color: var(--ai); color: #fff; }
+
+        .deck-meta { font-size: 12px; color: var(--muted-2); margin-bottom: 10px; font-weight: 600; }
+
+        .flip-card { perspective: 1200px; height: 260px; cursor: pointer; margin-bottom: 16px; }
+        .grammar-flip-card { height: 320px; }
+        .flip-card-inner {
+          position: relative; width: 100%; height: 100%; text-align: center;
+          transition: transform .5s cubic-bezier(.2,.7,.3,1); transform-style: preserve-3d;
+        }
+        .flip-card.is-flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-face {
+          position: absolute; inset: 0; backface-visibility: hidden;
+          border-radius: 16px; border: 1.5px solid var(--line); background: var(--paper-card);
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          padding: 20px; box-shadow: 0 2px 0 var(--line); overflow-y: auto;
+        }
+        .flip-back { transform: rotateY(180deg); background: var(--ai-deep); border-color: var(--ai-deep); padding: 22px; }
+        .level-tag {
+          position: absolute; top: 12px; left: 14px; font-size: 11px; font-weight: 700;
+          color: var(--shu); border: 1px solid var(--shu); border-radius: 3px; padding: 1px 7px;
+          font-family: 'Noto Serif JP', serif; transform: rotate(-3deg);
+        }
+        .category-tag {
+          position: absolute; top: 12px; right: 14px; font-size: 10.5px; font-weight: 700;
+          color: var(--ai); background: rgba(36,68,110,0.08); border-radius: 999px; padding: 2px 9px;
+        }
+        .jp-kanji { font-family: 'Noto Serif JP', serif; font-size: 32px; font-weight: 700; color: var(--heading); }
+        .jp-kanji ruby rt { font-size: 13px; color: var(--muted-2); }
+        .grammar-card-pattern { font-family: 'Noto Serif JP', serif; font-size: 26px; font-weight: 700; color: var(--heading); }
+        .tap-hint { position: absolute; bottom: 12px; font-size: 11px; color: var(--muted-3); }
+        .zh-meaning { font-size: 21px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .vocab-card-source-dark { margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.55); }
+        .grammar-note-dark {
+          margin-top: 12px; font-size: 12.5px; color: #e8f0e0; background: rgba(122,155,87,0.25);
+          border-radius: 8px; padding: 8px 10px; line-height: 1.5; text-align: left;
+        }
+        .example-box { margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.25); width: 100%; }
+        .example-jp { font-size: 15px; color: #fff; line-height: 2; }
+        .example-jp ruby rt { font-size: 10px; color: rgba(255,255,255,0.75); }
+        .example-zh { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 6px; }
+
+        .card-controls { display: flex; align-items: center; gap: 10px; }
+        .icon-btn {
+          width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line);
+          background: var(--paper-card); display: flex; align-items: center; justify-content: center;
+          color: var(--ai); cursor: pointer; flex-shrink: 0;
+        }
+        .btn-ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
+        .shuffle-btn { width: 100%; margin-top: 10px; }
       `}</style>
 
       <div className="shell">
