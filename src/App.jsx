@@ -244,6 +244,18 @@ export default function App() {
         }
         .btn-ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
         .shuffle-btn { width: 100%; margin-top: 10px; }
+
+        .quick-links-card { margin-bottom: 16px; }
+        .quick-links-hint { font-size: 11.5px; color: var(--muted-2); margin-bottom: 12px; line-height: 1.6; }
+        .quick-links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .quick-link-item {
+          position: relative; display: flex; flex-direction: column; gap: 2px;
+          background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+          padding: 10px 24px 10px 12px; text-decoration: none; color: var(--ink);
+        }
+        .quick-link-label { font-size: 13px; font-weight: 700; color: var(--heading); }
+        .quick-link-note { font-size: 10.5px; color: var(--muted-2); }
+        .quick-link-icon { position: absolute; top: 10px; right: 8px; color: var(--muted-3); }
       `}</style>
 
       <div className="shell">

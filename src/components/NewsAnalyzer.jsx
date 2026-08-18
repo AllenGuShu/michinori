@@ -1,8 +1,21 @@
 import React, { useState, useRef } from "react";
-import { Camera, Loader2, Trash2, ChevronDown, ChevronUp, Volume2 } from "lucide-react";
+import { Camera, Loader2, Trash2, ChevronDown, ChevronUp, Volume2, ExternalLink, Link2 } from "lucide-react";
 import { Furigana, WordRuby } from "../lib/furigana.jsx";
 import { speak } from "../lib/speak.js";
 import { loadArchive, saveArticle, deleteArticle } from "../lib/newsArchive.js";
+
+const QUICK_LINKS = [
+  { label: "NHK Easy（簡易日文）", note: "適合先從這裡開始", url: "https://www3.nhk.or.jp/news/easy/" },
+  { label: "主要", note: "當日焦點新聞", url: "https://news.yahoo.co.jp/topics/top-picks" },
+  { label: "國內・社會", note: "政治、社會、生活議題", url: "https://news.yahoo.co.jp/topics/domestic" },
+  { label: "國際", note: "國際新聞", url: "https://news.yahoo.co.jp/topics/world" },
+  { label: "經濟・商業", note: "股市、企業、物價", url: "https://news.yahoo.co.jp/topics/business" },
+  { label: "運動", note: "賽事、選手", url: "https://news.yahoo.co.jp/topics/sports" },
+  { label: "科技", note: "IT、網路、手機", url: "https://news.yahoo.co.jp/topics/it" },
+  { label: "科學", note: "科學新知", url: "https://news.yahoo.co.jp/topics/science" },
+  { label: "娛樂・文化", note: "電影、音樂、藝人", url: "https://news.yahoo.co.jp/topics/entertainment" },
+  { label: "地方・生活", note: "地方新聞、天氣、日常", url: "https://news.yahoo.co.jp/topics/local" },
+];
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -18,6 +31,7 @@ export default function NewsAnalyzer() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [linksOpen, setLinksOpen] = useState(true);
   const [archive, setArchive] = useState(() => loadArchive());
   const [openId, setOpenId] = useState(null);
   const fileInputRef = useRef(null);
@@ -63,6 +77,30 @@ export default function NewsAnalyzer() {
   return (
     <div>
       <div className="n5-intro">📸 上傳你今天看的新聞截圖，自動幫你整理單字、文法、延伸例句，累積成專屬新聞資料庫。</div>
+
+      <div className="n5-lesson-card quick-links-card">
+        <button className="n5-lesson-header" onClick={() => setLinksOpen((o) => !o)}>
+          <Link2 size={16} style={{ flexShrink: 0 }} />
+          <span className="n5-lesson-title">🔗 今日快速連結（去挑一篇新聞）</span>
+          {linksOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
+        {linksOpen && (
+          <div className="n5-lesson-body">
+            <div className="quick-links-hint">
+              點連結去分類頁面挑一篇喜歡的新聞，截圖後回來上傳分析。這些只是幫你導覽閱讀的連結，不會自動抓取內容。
+            </div>
+            <div className="quick-links-grid">
+              {QUICK_LINKS.map((l) => (
+                <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="quick-link-item">
+                  <span className="quick-link-label">{l.label}</span>
+                  <span className="quick-link-note">{l.note}</span>
+                  <ExternalLink size={13} className="quick-link-icon" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="news-upload-card">
         <input
